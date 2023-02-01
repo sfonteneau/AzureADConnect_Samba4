@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ #!/usr/bin/env python
 import os
 import sys
 import syslog
@@ -37,6 +37,8 @@ if proxiesconf:
 else:
     proxies={}
 
+az = None
+
 
 def sid_to_str(sid):
 
@@ -61,6 +63,40 @@ def sid_to_str(sid):
 
     return sid
 
+def connect_az():
+    global az
+    if not az :
+        az = AADInternals(mail=mailadmin,password=passwordadmin)
+
+
+
+def send_user_to_az(entry):
+    global az
+
+    connect_az()
+    print('Create User %s' % entry)
+    az.set_azureadobject(entry['SourceAnchor'],
+                         entry['userPrincipalName'],
+                         givenName=entry['givenName'],
+                         dnsDomainName=entry["dnsDomainName"],
+                         displayName=entry["displayName"],
+                         surname=entry['surname']
+    )
+
+def send_group_to_az(entry):
+    global az
+
+    connect_az()
+    print('Create Group %s' % entry)
+    az.set_azureadobject(entry['SourceAnchor'],
+                         dnsDomainName=entry["dnsDomainName"],
+                         displayName=entry["displayName"],
+                         groupMembers=entry['groupMembers'],
+                         usertype='Group',
+                         SecurityEnabled=True
+    )
+
+
 
 
 def run():
@@ -80,12 +116,14 @@ def run():
 
     dict_all_users_samba={}
 
+    all_dn={}
+    dict_id_hash = {}
     # Search all users
-
     for user in samdb_loc.search(base=samdb_loc.get_default_basedn(), expression=r"(&(objectClass=user)(!(objectClass=computer)))"):
 
             Random.atfork()
 
+            # Update if password different in dict mail pwdlastset
             passwordattr = 'unicodePwd'
             password = testpawd.get_account_attributes(samdb_loc,None,samdb_loc.get_default_basedn(),filter="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr],decrypt=False)
             if not passwordattr in password:
@@ -94,11 +132,13 @@ def run():
             hashnt = password[passwordattr][0].hex().upper()
 
             sid = sid_to_str(user['objectSid'][0])
-
+            if sid.startswith('S-1-5-32-'):
+                continue
+            dict_id_hash[sid]=hashnt
             if int(user["userAccountControl"][0]) & UF_ACCOUNTDISABLE:
                 enabled = False
             else:
-                enabled = True 
+                enabled = True
             data = {
                        "SourceAnchor"               : sid,
                        "accountEnabled"             : enabled,
@@ -110,15 +150,81 @@ def run():
                        "givenName"                  : user.get("givenName",[b''])[0].decode('utf-8'),
                        "surname"                    : user.get("sn",[b''])[0].decode('utf-8'),
                    }
-
+            all_dn[str(user["dn"])]=sid
             dict_all_users_samba[sid] = data
 
-    az = AADInternals(mail=mailadmin,password=passwordadmin)
+
+    dict_all_group_samba = {}
+    for group in samdb_loc.search(base=samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
+        sid = sid_to_str(group['objectSid'][0])
+        if sid.startswith('S-1-5-32-'):
+            continue
+
+        data = {
+                       "SourceAnchor"               : sid,
+                       "onPremisesSamAccountName"   : group.get("sAMAccountName",[b''])[0].decode('utf-8'),
+                       "onPremisesDistinguishedName": str(group["dn"]),
+                       "dnsDomainName"              : domaine,
+                       "displayName"                : group.get("sAMAccountName",[b''])[0].decode('utf-8'),
+                       "groupMembers"               : []
+                   }
+
+        all_dn[str(group["dn"])]=sid
+        dict_all_group_samba[sid] = data
+
+
+    for group in samdb_loc.search(base=samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
+        sid = sid_to_str(group['objectSid'][0])
+        if sid.startswith('S-1-5-32-'):
+            continue
+
+        list_member=[]
+        for m in group.get('member',[]):
+            if str(m) in all_dn:
+                list_member.append(all_dn[str(m)])
+        dict_all_group_samba[sid]['groupMembers']=list_member
+
+
+
     for entry in dict_all_users_samba:
-        az.set_azureadobject(entry,
-                             dict_all_users_samba[entry]['userPrincipalName'],
-                             givenName=dict_all_users_samba[entry]['givenName'],
-                             dnsDomainName=dict_all_users_samba[entry]["dnsDomainName"],
-                             displayName=dict_all_users_samba[entry]["displayName"],
-                             surname=dict_all_users_samba[entry]['surname']
-        )
+        send_user_to_az(dict_all_users_samba[entry])
+
+    for entry in dict_all_group_samba:
+        send_group_to_az(dict_all_group_samba[entry])
+
+    #create dict azure as User
+    global az
+    dict_az_user = {}
+    connect_az()
+    for user in az.list_users():
+        if not user['dirSyncEnabled']:
+            continue
+        if not user.get('immutable_id'):
+            continue
+        dict_az_user[user["immutable_id"]] = user
+
+
+    # Delete user in azure ad not found in samba
+    for user in dict_az_user:
+        if not user in dict_all_users_samba:
+            print('Delete user %s' % user)
+            az.remove_azureadoject(sourceanchor=user,objecttype='User')
+
+    dict_az_group = {}
+    for group in az.list_groups():
+        if not group['dirSyncEnabled']:
+            continue
+        if not group.get('immutable_id'):
+            continue
+        dict_az_group[group["immutable_id"]] = group
+
+    # Delete group in azure ad not found in samba
+    for group in dict_az_group:
+        if not group in dict_all_group_samba:
+            print('Delete group %s' % group)
+            az.remove_azureadoject(sourceanchor=group,objecttype='Group')
+
+
+    for entry in dict_id_hash :
+        print('send %s to %s' % (hashnt,entry))
+        az.set_userpassword(hashnt=dict_id_hash[entry],sourceanchor=entry)
