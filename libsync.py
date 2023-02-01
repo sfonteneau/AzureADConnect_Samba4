@@ -4,6 +4,7 @@ import sys
 
 if "__file__" in locals():
     sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+    sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'AADInternals_python'))
 
 import syslog
 import json
