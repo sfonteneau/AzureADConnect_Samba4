@@ -1,6 +1,10 @@
  #!/usr/bin/env python
 import os
 import sys
+
+if "__file__" in locals():
+    sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+
 import syslog
 import json
 import ldb
