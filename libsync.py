@@ -76,7 +76,7 @@ class AdConnect():
     def send_group_to_az(self,entry):
         self.connect()
         print('Create Group %s' % entry)
-        self.az.set_azureadobject(**entry,usertype='Group',SecurityEnabled=True)
+        self.az.set_azureadobject(**entry,usertype='Group')
 
     def delete_user(self,entry):
         self.az.remove_azureadoject(sourceanchor=entry,objecttype='User')
@@ -195,14 +195,14 @@ class SambaInfo():
             if int(sid.rsplit('-',)[-1]) < 1000:
                 continue
 
-
             data = {
                            "SourceAnchor"               : sid,
                            "onPremisesSamAccountName"   : group.get("sAMAccountName",[b''])[0].decode('utf-8'),
                            "onPremisesDistinguishedName": str(group["dn"]),
                            "dnsDomainName"              : self.domaine,
                            "displayName"                : group.get("sAMAccountName",[b''])[0].decode('utf-8'),
-                           "groupMembers"               : []
+                           "groupMembers"               : [],
+                           "SecurityEnabled"            : group.get("grouptype",[b''])[0].decode('utf-8') in ['-2147483644','-2147483640','-2147483646']
                        }
 
             self.all_dn[str(group["dn"])]=sid
