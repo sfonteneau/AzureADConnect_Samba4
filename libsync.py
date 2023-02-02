@@ -1,4 +1,4 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 import os
 import sys
 import syslog
@@ -76,7 +76,7 @@ class AdConnect():
     def send_group_to_az(self,entry):
         self.connect()
         print('Create Group %s' % entry)
-        self.az.set_azureadobject(**entry,usertype='Group')
+        self.az.set_azureadobject(**entry,usertype='Group',SecurityEnabled=True)
 
     def delete_user(self,entry):
         self.az.remove_azureadoject(sourceanchor=entry,objecttype='User')
@@ -188,8 +188,13 @@ class SambaInfo():
         self.dict_all_group_samba = {}
         for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
             sid = sid_to_str(group['objectSid'][0])
-            if sid.startswith('S-1-5-32-'):
+
+            if not sid.startswith('S-1-5-21-'):
                 continue
+
+            if int(sid.rsplit('-',)[-1]) < 1000:
+                continue
+
 
             data = {
                            "SourceAnchor"               : sid,
@@ -206,7 +211,11 @@ class SambaInfo():
 
         for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
             sid = sid_to_str(group['objectSid'][0])
-            if sid.startswith('S-1-5-32-'):
+
+            if not sid.startswith('S-1-5-21-'):
+                continue
+
+            if int(sid.rsplit('-',)[-1]) < 1000:
                 continue
 
             list_member=[]

@@ -33,7 +33,7 @@ if os.path.isfile(file_last_send_password):
 def hash_for_data(data):
     return hashlib.sha1(pickle.dumps(data)).hexdigest()
 
-def run_sync():
+def run_sync(force=False):
 
 
     azure = AdConnect()
@@ -44,7 +44,7 @@ def run_sync():
     #create all user found samba
     for entry in smb.dict_all_users_samba:
         data_hash = hash_for_data(smb.dict_all_users_samba[entry])
-        if last_send_user.get(entry) != data_hash:
+        if last_send_user.get(entry) != data_hash or force:
             azure.send_user_to_az(smb.dict_all_users_samba[entry])
             last_send_user[entry] = data_hash
 
@@ -56,7 +56,7 @@ def run_sync():
     #create all group found samba
     for entry in smb.dict_all_group_samba:
         data_hash = hash_for_data(smb.dict_all_group_samba[entry])
-        if last_send_group.get(entry) != data_hash:
+        if last_send_group.get(entry) != data_hash or force:
             azure.send_group_to_az(smb.dict_all_group_samba[entry])
             last_send_group[entry] = data_hash
 
@@ -82,7 +82,7 @@ def run_sync():
 
     #send all_password
     for entry in smb.dict_id_hash :
-        if last_send_password.get(entry) != smb.dict_id_hash[entry]:
+        if last_send_password.get(entry) != smb.dict_id_hash[entry] or force:
             print('send %s to %s' % (smb.dict_id_hash[entry],entry))
             azure.send_hashnt(smb.dict_id_hash[entry],entry)
             last_send_password[entry] = smb.dict_id_hash[entry]
@@ -95,4 +95,4 @@ def run_sync():
     # TODO BACKUP LAST HASH
 
 if __name__ == '__main__':
-    run_sync()
+    run_sync(force=False)
