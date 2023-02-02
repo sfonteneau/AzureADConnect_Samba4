@@ -1,11 +1,37 @@
 import os
 import sys
+import json
+import pickle
+import hashlib
 
 if "__file__" in locals():
     sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
 from libsync import AdConnect,SambaInfo
+path_az=os.path.dirname(os.path.realpath(__file__))
+last_send_user={}
+file_last_send_user = os.path.join(path_az,'last_send_user.json')
+last_send_group={}
+file_last_send_group = os.path.join(path_az,'last_send_group.json')
+last_send_password={}
+file_last_send_password = os.path.join(path_az,'last_send_password.json')
 
+path_az= os.path.dirname(os.path.realpath(__file__))
+
+if os.path.isfile(file_last_send_user):
+    with open(file_last_send_user,'r') as f:
+        last_send_user=json.loads(f.read())
+
+if os.path.isfile(file_last_send_group):
+    with open(file_last_send_group,'r') as f:
+        last_send_group=json.loads(f.read())
+
+if os.path.isfile(file_last_send_password):
+     with open(file_last_send_password,'r') as f:
+        last_send_password=json.loads(f.read())
+
+def hash_for_data(data):
+    return hashlib.sha1(pickle.dumps(data)).hexdigest()
 
 def run_sync():
 
@@ -17,18 +43,28 @@ def run_sync():
 
     #create all user found samba
     for entry in smb.dict_all_users_samba:
-        #TODO backup the last hash of the dict and send only in case of change
-        azure.send_user_to_az(smb.dict_all_users_samba[entry])
+        data_hash = hash_for_data(smb.dict_all_users_samba[entry])
+        if last_send_user.get(entry) != data_hash:
+            azure.send_user_to_az(smb.dict_all_users_samba[entry])
+            last_send_user[entry] = data_hash
 
-    # TODO CREATE HASH FOR DATA USER AND BACKUP
+    with open(file_last_send_user,'w') as f :
+        f.write(json.dumps(last_send_user))
+
+
 
     #create all group found samba
     for entry in smb.dict_all_group_samba:
-        #TODO backup the last hash of the dict and send only in case of change
-        azure.send_group_to_az(smb.dict_all_group_samba[entry])
+        data_hash = hash_for_data(smb.dict_all_group_samba[entry])
+        if last_send_group.get(entry) != data_hash:
+            azure.send_group_to_az(smb.dict_all_group_samba[entry])
+            last_send_group[entry] = data_hash
 
 
-    # TODO CREATE HASH FOR GROUP USER AND BACKUP
+    with open(file_last_send_group,'w') as f :
+        f.write(json.dumps(last_send_group))
+
+
 
     azure.generate_all_dict()
 
@@ -46,13 +82,17 @@ def run_sync():
 
     #send all_password
     for entry in smb.dict_id_hash :
-        #TODO backup the last hash of the dict and send only in case of change
-        print('send %s to %s' % (smb.dict_id_hash[entry],entry))
-        azure.send_hashnt(smb.dict_id_hash[entry],entry)
+        if last_send_password.get(entry) != smb.dict_id_hash[entry]:
+            print('send %s to %s' % (smb.dict_id_hash[entry],entry))
+            azure.send_hashnt(smb.dict_id_hash[entry],entry)
+            last_send_password[entry] = smb.dict_id_hash[entry]
+
+    with open(file_last_send_password,'w') as f :
+        f.write(json.dumps(last_send_password))
+
 
 
     # TODO BACKUP LAST HASH
 
 if __name__ == '__main__':
     run_sync()
-
