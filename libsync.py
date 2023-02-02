@@ -1,11 +1,6 @@
  #!/usr/bin/env python
 import os
 import sys
-
-if "__file__" in locals():
-    sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
-    sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'AADInternals_python'))
-
 import syslog
 import json
 import ldb
@@ -76,24 +71,12 @@ class AdConnect():
     def send_user_to_az(self,entry):
         self.connect()
         print('Create User %s' % entry)
-        self.az.set_azureadobject(entry['SourceAnchor'],
-                             entry['userPrincipalName'],
-                             givenName=entry['givenName'],
-                             dnsDomainName=entry["dnsDomainName"],
-                             displayName=entry["displayName"],
-                             surname=entry['surname']
-        )
+        self.az.set_azureadobject(**entry)
 
     def send_group_to_az(self,entry):
         self.connect()
         print('Create Group %s' % entry)
-        self.az.set_azureadobject(entry['SourceAnchor'],
-                             dnsDomainName=entry["dnsDomainName"],
-                             displayName=entry["displayName"],
-                             groupMembers=entry['groupMembers'],
-                             usertype='Group',
-                             SecurityEnabled=True
-        )
+        self.az.set_azureadobject(**entry,usertype='Group')
 
     def delete_user(self,entry):
         self.az.remove_azureadoject(sourceanchor=entry,objecttype='User')
@@ -182,6 +165,21 @@ class SambaInfo():
                        "displayName"                : user.get("displayName",[b''])[0].decode('utf-8'),
                        "givenName"                  : user.get("givenName",[b''])[0].decode('utf-8'),
                        "surname"                    : user.get("sn",[b''])[0].decode('utf-8'),
+                       "commonName"                 : user.get("cn",[b''])[0].decode('utf-8'),
+                       "physicalDeliveryOfficeName" : user.get("physicalDeliveryOfficeName",[b''])[0].decode('utf-8'),
+                       "department"                 : user.get("department",[b''])[0].decode('utf-8'),
+                       "employeeId"                 : user.get("employeeId",[b''])[0].decode('utf-8'),
+                       "streetAddress"              : user.get("streetAddress",[b''])[0].decode('utf-8'),
+                       "city"                       : user.get("city",[b''])[0].decode('utf-8'),
+                       "state"                      : user.get("state",[b''])[0].decode('utf-8'),
+                       "telephoneNumber"            : user.get("telephoneNumber",[b''])[0].decode('utf-8'),
+                       "company"                    : user.get("company",[b''])[0].decode('utf-8'),
+                       "employeeType"               : user.get("employeeType",[b''])[0].decode('utf-8'),
+                       "facsimileTelephoneNumber"   : user.get("facsimileTelephoneNumber",[b''])[0].decode('utf-8'),
+                       "mail"                       : user.get("mail",[b''])[0].decode('utf-8'),
+                       "mobile"                     : user.get("mobile",[b''])[0].decode('utf-8'),
+                       "title"                      : user.get("title",[b''])[0].decode('utf-8'),
+                       "proxyAddresses"             : [p.decode('utf-8') for p in user.get("proxyAddresses",[])]
                    }
             self.all_dn[str(user["dn"])]=sid
             self.dict_all_users_samba[sid] = data
