@@ -68,6 +68,11 @@ class AdConnect():
             self.mailadmin = None
             self.passwordadmin = None
 
+    def enable_ad_sync(self):
+        self.connect()
+        print('enable Ad Sync')
+        self.az.set_adsyncenabled(enabledirsync=True)
+
     def enable_password_hash_sync(self):
         self.connect()
         print('enable PasswordHashSync feature')
