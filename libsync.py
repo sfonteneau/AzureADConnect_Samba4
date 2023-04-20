@@ -68,6 +68,11 @@ class AdConnect():
             self.mailadmin = None
             self.passwordadmin = None
 
+    def enable_password_hash_sync(self):
+        self.connect()
+        print('enable PasswordHashSync feature')
+        self.az.set_sync_features(enable_features=['PasswordHashSync'])
+
     def send_user_to_az(self,entry):
         self.connect()
         print('Create User %s' % entry)

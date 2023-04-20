@@ -39,6 +39,8 @@ def run_sync(force=False):
     azure = AdConnect()
     smb = SambaInfo()
 
+    azure.enable_password_hash_sync()
+
     smb.generate_all_dict()
 
     #create all user found samba
