@@ -20,6 +20,14 @@ You can try like this:
 
 python3 /opt/sync-azure/run_sync.py
 
-Warning ! The sourceanchor is the sid! do not run on an existing installation!
+
+Warning
+========
+
+The sourceanchor is the sid! do not run on an existing installation! 
 
 userPrincipalName is used for the email address
+
+password writeback not supported
+
+User and group management only (not device)
