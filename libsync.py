@@ -70,22 +70,18 @@ class AdConnect():
 
     def enable_ad_sync(self):
         self.connect()
-        print('enable Ad Sync')
         self.az.set_adsyncenabled(enabledirsync=True)
 
     def enable_password_hash_sync(self):
         self.connect()
-        print('enable PasswordHashSync feature')
         self.az.set_sync_features(enable_features=['PasswordHashSync'])
 
     def send_user_to_az(self,entry):
         self.connect()
-        print('Create User %s' % entry)
         self.az.set_azureadobject(**entry)
 
     def send_group_to_az(self,entry):
         self.connect()
-        print('Create Group %s' % entry)
         self.az.set_azureadobject(**entry,usertype='Group')
 
     def delete_user(self,entry):

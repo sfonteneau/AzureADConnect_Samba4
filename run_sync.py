@@ -41,9 +41,11 @@ def run_sync(force=False):
     smb = SambaInfo()
 
     # enable ad sync
+    print('enable ad sync')
     azure.enable_ad_sync()
 
     # enable password hash sync
+    print('enable password hash sync')
     azure.enable_password_hash_sync()
 
     smb.generate_all_dict()
@@ -52,6 +54,7 @@ def run_sync(force=False):
     for entry in smb.dict_all_users_samba:
         data_hash = hash_for_data(smb.dict_all_users_samba[entry])
         if last_send_user.get(entry) != data_hash or force:
+            print('Send user %s' % entry)
             azure.send_user_to_az(smb.dict_all_users_samba[entry])
             last_send_user[entry] = data_hash
 
@@ -64,6 +67,7 @@ def run_sync(force=False):
     for entry in smb.dict_all_group_samba:
         data_hash = hash_for_data(smb.dict_all_group_samba[entry])
         if last_send_group.get(entry) != data_hash or force:
+            print('Send group %s' % entry)
             azure.send_group_to_az(smb.dict_all_group_samba[entry])
             last_send_group[entry] = data_hash
 
@@ -90,7 +94,7 @@ def run_sync(force=False):
     #send all_password
     for entry in smb.dict_id_hash :
         if last_send_password.get(entry) != smb.dict_id_hash[entry] or force:
-            print('send %s to %s' % (smb.dict_id_hash[entry],entry))
+            print('send hash for %s' % (entry))
 
             # Microsoft is very slow between sending the account and sending the password
             try:
