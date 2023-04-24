@@ -66,9 +66,11 @@ def run_sync(force=False):
     list_group_create = {}
 
     for entry in smb.dict_all_group_samba:
-        data_hash = hash_for_data(smb.dict_all_group_samba[entry])
         if not entry in last_send_group:
             list_group_create[entry] = None
+
+    for entry in smb.dict_all_group_samba:
+        data_hash = hash_for_data(smb.dict_all_group_samba[entry])
         if last_send_group.get(entry) != data_hash or force:
             print('Send group %s' % entry)
             azure.send_group_to_az(smb.dict_all_group_samba[entry])
