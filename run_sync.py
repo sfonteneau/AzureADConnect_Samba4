@@ -3,6 +3,7 @@ import sys
 import json
 import pickle
 import hashlib
+import time
 
 if "__file__" in locals():
     sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
@@ -90,7 +91,18 @@ def run_sync(force=False):
     for entry in smb.dict_id_hash :
         if last_send_password.get(entry) != smb.dict_id_hash[entry] or force:
             print('send %s to %s' % (smb.dict_id_hash[entry],entry))
-            azure.send_hashnt(smb.dict_id_hash[entry],entry)
+
+            # Microsoft is very slow between sending the account and sending the password
+            try:
+                azure.send_hashnt(smb.dict_id_hash[entry],entry)
+            except Exception as e:
+                if "Result" in str(e):
+                    print('Fail, we may be a little too fast for microsoft, we will wait and try again ...' )
+                    time.sleep(30)
+                    azure.send_hashnt(smb.dict_id_hash[entry],entry)
+                else:
+                    raise
+
             last_send_password[entry] = smb.dict_id_hash[entry]
 
     with open(file_last_send_password,'w') as f :
