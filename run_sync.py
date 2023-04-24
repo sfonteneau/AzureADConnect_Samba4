@@ -61,16 +61,27 @@ def run_sync(force=False):
     with open(file_last_send_user,'w') as f :
         f.write(json.dumps(last_send_user))
 
-
-
     #create all group found samba
+    list_nested_group = {}
+    list_group_create = {}
+
     for entry in smb.dict_all_group_samba:
         data_hash = hash_for_data(smb.dict_all_group_samba[entry])
+        if not entry in last_send_group:
+            list_group_create[entry] = None
         if last_send_group.get(entry) != data_hash or force:
             print('Send group %s' % entry)
             azure.send_group_to_az(smb.dict_all_group_samba[entry])
+            for g in smb.dict_all_group_samba[entry]["groupMembers"]:
+                if g in list_group_create:
+                    list_nested_group[entry] = None
             last_send_group[entry] = data_hash
 
+    if list_nested_group:
+        print('New group with nested detected wait 30s')
+        time.sleep(30)
+        for entry in list_nested_group:
+            azure.send_group_to_az(smb.dict_all_group_samba[entry])
 
     with open(file_last_send_group,'w') as f :
         f.write(json.dumps(last_send_group))
