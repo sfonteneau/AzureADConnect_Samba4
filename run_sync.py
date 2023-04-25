@@ -40,13 +40,15 @@ def run_sync(force=False):
     azure = AdConnect()
     smb = SambaInfo()
 
-    # enable ad sync
-    print('enable ad sync')
-    azure.enable_ad_sync()
 
-    # enable password hash sync
-    print('enable password hash sync')
-    azure.enable_password_hash_sync()
+    if not last_send_password :
+        # enable ad sync
+        print('enable ad sync')
+        azure.enable_ad_sync()
+
+        # enable password hash sync
+        print('enable password hash sync')
+        azure.enable_password_hash_sync()
 
     smb.generate_all_dict()
 
