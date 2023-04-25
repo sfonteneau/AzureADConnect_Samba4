@@ -13,8 +13,8 @@ from samba.netcmd.user import GetPasswordCommand
 from AADInternals_python.AADInternals import AADInternals
 from Crypto import Random
 from samba.dsdb import UF_ACCOUNTDISABLE
+from samba.common import get_string
 
-import configparser
 import optparse
 import samba.getopt as options
 
@@ -23,40 +23,14 @@ import samba.getopt as options
 syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_LOCAL3)
 
 
-
-def sid_to_str(sid):
-
-    try:
-        # revision
-        revision = int(sid[0])
-        # count of sub authorities
-        sub_authorities = int(sid[1])
-        # big endian
-        identifier_authority = int.from_bytes(sid[2:8], byteorder='big')
-        # If true then it is represented in hex
-        if identifier_authority >= 2 ** 32:
-            identifier_authority = hex(identifier_authority)
-
-        # loop over the count of small endians
-        sub_authority = '-' + '-'.join([str(int.from_bytes(sid[8 + (i * 4): 12 + (i * 4)], byteorder='little')) for i in range(sub_authorities)])
-        objectSid = 'S-' + str(revision) + '-' + str(identifier_authority) + sub_authority
-
-        return objectSid
-    except Exception:
-        pass
-
-    return sid
-
 class AdConnect():
 
-    def __init__(self,azureconf='/etc/azureconf/azure.conf'):
+    def __init__(self):
 
-        config = configparser.ConfigParser()
-        config.read(azureconf)
-        self.mailadmin = config.get('common', 'mailadmin')
-        self.passwordadmin = config.get('common', 'passwordadmin')
-        self.proxiesconf = config.get('common', 'proxy')
 
+        self.mailadmin = None
+        self.passwordadmin = None
+        self.proxiesconf = None
 
         self.az = None
         self.dict_az_user={}
@@ -115,7 +89,7 @@ class AdConnect():
 
 class SambaInfo():
 
-    def __init__(self, smbconf="/etc/samba/smb.conf"):
+    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid"):
 
         parser = optparse.OptionParser(smbconf)
         sambaopts = options.SambaOptions(parser)
@@ -134,7 +108,10 @@ class SambaInfo():
         self.dict_all_users_samba={}
         self.all_dn={}
         self.dict_id_hash = {}
+        self.SourceAnchorAttr = SourceAnchorAttr
 
+        self.write_msDSConsistencyGuid_if_empty = None
+        self.use_msDSConsistencyGuid_if_exist = None
 
     def generate_all_dict(self):
         self.dict_all_users_samba={}
@@ -153,16 +130,43 @@ class SambaInfo():
 
             hashnt = password[passwordattr][0].hex().upper()
 
-            sid = sid_to_str(user['objectSid'][0])
+            SourceAnchor = user[self.SourceAnchorAttr][0]
+
+            sid = get_string(self.samdb_loc.schema_format_value("objectSID", user["objectSID"][0]))
+
             if sid.startswith('S-1-5-32-'):
                 continue
-            self.dict_id_hash[sid]=hashnt
+            if int(sid.rsplit('-',)[-1]) < 1000:
+                continue
+
+            if self.SourceAnchorAttr.lower() == "objectSID".lower():
+                SourceAnchor = sid
+
+            if type(SourceAnchor) != str:
+                SourceAnchor = SourceAnchor.decode('utf-8')
+
+            msDSConsistencyGuid = user.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
+
+            if self.use_msDSConsistencyGuid_if_exist:
+                if msDSConsistencyGuid :
+                    SourceAnchor = msDSConsistencyGuid
+
+            if self.write_msDSConsistencyGuid_if_empty:
+                if not msDSConsistencyGuid :
+                    ldif_data = """dn: %s
+changetype: modify
+replace: ms-DS-ConsistencyGuid
+ms-DS-ConsistencyGuid: %s
+""" % (user['distinguishedName'][0].decode('utf-8'),SourceAnchor)
+                    self.samdb_loc.modify_ldif(ldif_data)
+
+            self.dict_id_hash[SourceAnchor]=hashnt
             if int(user["userAccountControl"][0]) & UF_ACCOUNTDISABLE:
                 enabled = False
             else:
                 enabled = True
             data = {
-                       "SourceAnchor"               : sid,
+                       "SourceAnchor"               : SourceAnchor,
                        "accountEnabled"             : enabled,
                        "userPrincipalName"          : user.get("userPrincipalName",[b''])[0].decode('utf-8'),
                        "onPremisesSamAccountName"   : user.get("sAMAccountName",[b''])[0].decode('utf-8'),
@@ -187,22 +191,31 @@ class SambaInfo():
                        "title"                      : user.get("title",[b''])[0].decode('utf-8'),
                        "proxyAddresses"             : [p.decode('utf-8') for p in user.get("proxyAddresses",[])]
                    }
-            self.all_dn[str(user["dn"])]=sid
-            self.dict_all_users_samba[sid] = data
+            self.all_dn[str(user["dn"])]=SourceAnchor
+            self.dict_all_users_samba[SourceAnchor] = data
 
 
         self.dict_all_group_samba = {}
         for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
-            sid = sid_to_str(group['objectSid'][0])
+            SourceAnchor = group[self.SourceAnchorAttr][0]
 
-            if not sid.startswith('S-1-5-21-'):
+            sid = get_string(self.samdb_loc.schema_format_value("objectSID", group["objectSID"][0]))
+
+            if sid.startswith('S-1-5-32-'):
                 continue
-
             if int(sid.rsplit('-',)[-1]) < 1000:
                 continue
 
+            if self.SourceAnchorAttr.lower() == "objectSID".lower():
+                SourceAnchor = sid
+
+
+            if type(SourceAnchor) != str:
+                SourceAnchor = SourceAnchor.decode('utf-8')
+
+
             data = {
-                           "SourceAnchor"               : sid,
+                           "SourceAnchor"               : SourceAnchor,
                            "onPremisesSamAccountName"   : group.get("sAMAccountName",[b''])[0].decode('utf-8'),
                            "onPremisesDistinguishedName": str(group["dn"]),
                            "dnsDomainName"              : self.domaine,
@@ -211,21 +224,29 @@ class SambaInfo():
                            "SecurityEnabled"            : group.get("grouptype",[b''])[0].decode('utf-8') in ['-2147483644','-2147483640','-2147483646']
                        }
 
-            self.all_dn[str(group["dn"])]=sid
-            self.dict_all_group_samba[sid] = data
+            self.all_dn[str(group["dn"])]=SourceAnchor
+            self.dict_all_group_samba[SourceAnchor] = data
 
 
         for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
-            sid = sid_to_str(group['objectSid'][0])
 
-            if not sid.startswith('S-1-5-21-'):
+            SourceAnchor = group[self.SourceAnchorAttr][0]
+
+            sid = get_string(self.samdb_loc.schema_format_value("objectSID", group["objectSID"][0]))
+
+            if sid.startswith('S-1-5-32-'):
                 continue
-
             if int(sid.rsplit('-',)[-1]) < 1000:
                 continue
+
+            if self.SourceAnchorAttr.lower() == "objectSID".lower():
+                SourceAnchor = sid
+
+            if type(SourceAnchor) != str:
+                SourceAnchor = SourceAnchor.decode('utf-8')
 
             list_member=[]
             for m in group.get('member',[]):
                 if str(m) in self.all_dn:
                     list_member.append(self.all_dn[str(m)])
-            self.dict_all_group_samba[sid]['groupMembers']=list_member
+            self.dict_all_group_samba[SourceAnchor]['groupMembers']=list_member

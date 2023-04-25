@@ -2,3 +2,7 @@
 mailadmin = exemple@domain.com
 passwordadmin = password
 proxy =
+
+SourceAnchorAttr=objectSID
+write_msDSConsistencyGuid_if_empty = True
+use_msDSConsistencyGuid_if_exist = True

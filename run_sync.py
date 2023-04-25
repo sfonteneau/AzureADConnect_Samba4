@@ -4,6 +4,7 @@ import json
 import pickle
 import hashlib
 import time
+import configparser
 
 if "__file__" in locals():
     sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
@@ -36,10 +37,20 @@ def hash_for_data(data):
 
 def run_sync(force=False):
 
+    azureconf='/etc/azureconf/azure.conf'
+
+    config = configparser.ConfigParser()
+    config.read(azureconf)
 
     azure = AdConnect()
-    smb = SambaInfo()
+    azure.mailadmin = config.get('common', 'mailadmin')
+    azure.passwordadmin = config.get('common', 'passwordadmin')
+    azure.proxiesconf = config.get('common', 'proxy')
 
+    smb = SambaInfo(SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'))
+
+    smb.write_msDSConsistencyGuid_if_empty = config.getboolean('common', 'write_msDSConsistencyGuid_if_empty')
+    smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
 
     if not last_send_password :
         # enable ad sync
@@ -51,6 +62,24 @@ def run_sync(force=False):
         azure.enable_password_hash_sync()
 
     smb.generate_all_dict()
+    azure.generate_all_dict()
+
+    # Delete user in azure and not found in samba
+    for user in azure.dict_az_user:
+        if not user in smb.dict_all_users_samba:
+            print('Delete user %s' % user)
+            azure.delete_user(user)
+            if user in last_send_user:
+                del last_send_user[user]
+
+
+    # Delete group in azure and not found in samba
+    for group in azure.dict_az_group:
+        if not group in smb.dict_all_group_samba:
+            print('Delete group %s' % group)
+            azure.delete_group(group)
+            if group in last_send_group:
+                del last_send_group[group]
 
     #create all user found samba
     for entry in smb.dict_all_users_samba:
@@ -91,20 +120,6 @@ def run_sync(force=False):
         f.write(json.dumps(last_send_group))
 
 
-
-    azure.generate_all_dict()
-
-    # Delete user in azure and not found in samba
-    for user in azure.dict_az_user:
-        if not user in smb.dict_all_users_samba:
-            print('Delete user %s' % user)
-            azure.delete_user(user)
-
-    # Delete group in azure and not found in samba
-    for group in azure.dict_az_group:
-        if not group in smb.dict_all_group_samba:
-            print('Delete group %s' % group)
-            azure.delete_group(group)
 
     #send all_password
     for entry in smb.dict_id_hash :
