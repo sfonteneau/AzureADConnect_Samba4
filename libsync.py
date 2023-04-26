@@ -128,11 +128,11 @@ class SambaInfo():
     def return_source_anchor(self,entry):
 
         if self.SourceAnchorAttr.lower() in ['objectGUID'.lower(),'objectSID'.lower()]:
-            SourceAnchor = base64.b64encode(user[self.SourceAnchorAttr][0])
+            SourceAnchor = base64.b64encode(entry[self.SourceAnchorAttr][0])
         else:
-            SourceAnchor = user[self.SourceAnchorAttr][0]
+            SourceAnchor = entry[self.SourceAnchorAttr][0]
 
-        sid = get_string(self.samdb_loc.schema_format_value("objectSID", user["objectSID"][0]))
+        sid = get_string(self.samdb_loc.schema_format_value("objectSID", entry["objectSID"][0]))
 
         if sid.startswith('S-1-5-32-'):
             return ""
@@ -145,7 +145,7 @@ class SambaInfo():
         if type(SourceAnchor) != str:
             SourceAnchor = SourceAnchor.decode('utf-8')
 
-        msDSConsistencyGuid = user.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
+        msDSConsistencyGuid = entry.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
 
         if self.use_msDSConsistencyGuid_if_exist:
             if msDSConsistencyGuid :
@@ -157,8 +157,8 @@ class SambaInfo():
 changetype: modify
 replace: ms-DS-ConsistencyGuid
 ms-DS-ConsistencyGuid: %s
-""" % (user['distinguishedName'][0].decode('utf-8'),SourceAnchor)
-                print('Set ms-DS-ConsistencyGuid=%s on %s ' % (SourceAnchor,user['distinguishedName'][0].decode('utf-8')))
+""" % (entry['distinguishedName'][0].decode('utf-8'),SourceAnchor)
+                print('Set ms-DS-ConsistencyGuid=%s on %s ' % (SourceAnchor,entry['distinguishedName'][0].decode('utf-8')))
                 if not self.dry_run:
                     self.samdb_loc.modify_ldif(ldif_data)
 
