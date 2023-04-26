@@ -42,7 +42,13 @@ def run_sync(force=False):
     config = configparser.ConfigParser()
     config.read(azureconf)
 
+    dry_run = config.getboolean('common', 'dry_run')
+
+    if dry_run:
+        print('DRY RUN ON: the script will not perform any actions')
+
     azure = AdConnect()
+    azure.dry_run = dry_run
     azure.mailadmin = config.get('common', 'mailadmin')
     azure.passwordadmin = config.get('common', 'passwordadmin')
     azure.proxiesconf = config.get('common', 'proxy')
@@ -51,6 +57,7 @@ def run_sync(force=False):
 
     smb.write_msDSConsistencyGuid_if_empty = config.getboolean('common', 'write_msDSConsistencyGuid_if_empty')
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
+    smb.dry_run = dry_run
 
     if not last_send_password :
         # enable ad sync
@@ -89,8 +96,9 @@ def run_sync(force=False):
             azure.send_user_to_az(smb.dict_all_users_samba[entry])
             last_send_user[entry] = data_hash
 
-    with open(file_last_send_user,'w') as f :
-        f.write(json.dumps(last_send_user))
+    if not dry_run :
+        with open(file_last_send_user,'w') as f :
+            f.write(json.dumps(last_send_user))
 
     #create all group found samba
     list_nested_group = {}
@@ -116,8 +124,9 @@ def run_sync(force=False):
         for entry in list_nested_group:
             azure.send_group_to_az(smb.dict_all_group_samba[entry])
 
-    with open(file_last_send_group,'w') as f :
-        f.write(json.dumps(last_send_group))
+    if not dry_run :
+        with open(file_last_send_group,'w') as f :
+            f.write(json.dumps(last_send_group))
 
 
 
@@ -139,8 +148,9 @@ def run_sync(force=False):
 
             last_send_password[entry] = smb.dict_id_hash[entry]
 
-    with open(file_last_send_password,'w') as f :
-        f.write(json.dumps(last_send_password))
+    if not dry_run :
+        with open(file_last_send_password,'w') as f :
+            f.write(json.dumps(last_send_password))
 
 
 

@@ -33,6 +33,8 @@ class AdConnect():
         self.passwordadmin = None
         self.proxiesconf = None
 
+        self.dry_run=True
+
         self.az = None
         self.dict_az_user={}
         self.dict_az_group={}
@@ -45,25 +47,31 @@ class AdConnect():
 
     def enable_ad_sync(self):
         self.connect()
-        self.az.set_adsyncenabled(enabledirsync=True)
+        if not self.dry_run:
+            self.az.set_adsyncenabled(enabledirsync=True)
 
     def enable_password_hash_sync(self):
         self.connect()
-        self.az.set_sync_features(enable_features=['PasswordHashSync'])
+        if not self.dry_run:
+            self.az.set_sync_features(enable_features=['PasswordHashSync'])
 
     def send_user_to_az(self,entry):
         self.connect()
-        self.az.set_azureadobject(**entry)
+        if not self.dry_run:
+            self.az.set_azureadobject(**entry)
 
     def send_group_to_az(self,entry):
         self.connect()
-        self.az.set_azureadobject(**entry,usertype='Group')
+        if not self.dry_run:
+            self.az.set_azureadobject(**entry,usertype='Group')
 
     def delete_user(self,entry):
-        self.az.remove_azureadoject(sourceanchor=entry,objecttype='User')
+        if not self.dry_run:
+            self.az.remove_azureadoject(sourceanchor=entry,objecttype='User')
 
     def delete_group(self,entry):
-        self.az.remove_azureadoject(sourceanchor=entry,objecttype='Group')
+        if not self.dry_run:
+            self.az.remove_azureadoject(sourceanchor=entry,objecttype='Group')
 
     def generate_all_dict(self):
         self.connect()
@@ -85,7 +93,8 @@ class AdConnect():
 
     def send_hashnt(self,hashnt,sourceanchor):
         self.connect()
-        self.az.set_userpassword(hashnt=hashnt,sourceanchor=sourceanchor)
+        if not self.dry_run:
+            self.az.set_userpassword(hashnt=hashnt,sourceanchor=sourceanchor)
 
 
 class SambaInfo():
@@ -111,6 +120,7 @@ class SambaInfo():
         self.dict_id_hash = {}
         self.SourceAnchorAttr = SourceAnchorAttr
 
+        self.dry_run=True
         self.write_msDSConsistencyGuid_if_empty = None
         self.use_msDSConsistencyGuid_if_exist = None
 
@@ -162,7 +172,9 @@ changetype: modify
 replace: ms-DS-ConsistencyGuid
 ms-DS-ConsistencyGuid: %s
 """ % (user['distinguishedName'][0].decode('utf-8'),SourceAnchor)
-                    self.samdb_loc.modify_ldif(ldif_data)
+                    print('Set ms-DS-ConsistencyGuid=%s on %s ' % (SourceAnchor,user['distinguishedName'][0].decode('utf-8')))
+                    if not self.dry_run:
+                        self.samdb_loc.modify_ldif(ldif_data)
 
             self.dict_id_hash[SourceAnchor]=hashnt
             if int(user["userAccountControl"][0]) & UF_ACCOUNTDISABLE:

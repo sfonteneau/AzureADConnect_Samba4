@@ -7,3 +7,6 @@ proxy =
 SourceAnchorAttr=objectGUID_base64
 write_msDSConsistencyGuid_if_empty = True
 use_msDSConsistencyGuid_if_exist = True
+
+; When dry_run is "True", the script will display the actions but will not perform the action
+dry_run=True
