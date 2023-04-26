@@ -44,3 +44,10 @@ You can run the script on a previous installation but you have to pay attention 
 If "sourceanchor" changes, it will initiate object deletions and then object recreations. You must therefore choose your sourceanchor well and not change it
 
 A dry_run mode allows you to run the script without making any changes
+
+
+compatibility
+================
+
+The first version of this project used the "objectsid" string as "sourceanchor", this mode now corresponds to an "objectSID_str" as sourceanchor in the ini file, this mode does not exist with azure ad microsoft, so it should no longer be used.
+
