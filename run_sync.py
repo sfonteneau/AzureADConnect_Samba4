@@ -74,7 +74,7 @@ def run_sync(force=False):
     # Delete user in azure and not found in samba
     for user in azure.dict_az_user:
         if not user in smb.dict_all_users_samba:
-            print('Delete user %s' % user)
+            print('Delete user %s' % azure.dict_az_user[user])
             azure.delete_user(user)
             if user in last_send_user:
                 del last_send_user[user]
@@ -83,7 +83,7 @@ def run_sync(force=False):
     # Delete group in azure and not found in samba
     for group in azure.dict_az_group:
         if not group in smb.dict_all_group_samba:
-            print('Delete group %s' % group)
+            print('Delete group %s' % azure.dict_az_group[group])
             azure.delete_group(group)
             if group in last_send_group:
                 del last_send_group[group]
@@ -92,7 +92,7 @@ def run_sync(force=False):
     for entry in smb.dict_all_users_samba:
         data_hash = hash_for_data(smb.dict_all_users_samba[entry])
         if last_send_user.get(entry) != data_hash or force:
-            print('Send user %s' % entry)
+            print('Send user %s' % smb.dict_all_users_samba[entry])
             azure.send_user_to_az(smb.dict_all_users_samba[entry])
             last_send_user[entry] = data_hash
 
@@ -111,7 +111,7 @@ def run_sync(force=False):
     for entry in smb.dict_all_group_samba:
         data_hash = hash_for_data(smb.dict_all_group_samba[entry])
         if last_send_group.get(entry) != data_hash or force:
-            print('Send group %s' % entry)
+            print('Send group %s' % smb.dict_all_group_samba[entry])
             azure.send_group_to_az(smb.dict_all_group_samba[entry])
             for g in smb.dict_all_group_samba[entry]["groupMembers"]:
                 if g in list_group_create:
@@ -133,7 +133,7 @@ def run_sync(force=False):
     #send all_password
     for entry in smb.dict_id_hash :
         if last_send_password.get(entry) != smb.dict_id_hash[entry] or force:
-            print('send hash for %s' % (entry))
+            print('send hash for SourceAnchor: %s %s' % (entry,smb.dict_all_users_samba[entry]['onPremisesSamAccountName']))
 
             # Microsoft is very slow between sending the account and sending the password
             try:
