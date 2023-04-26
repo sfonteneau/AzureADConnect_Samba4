@@ -127,20 +127,24 @@ class SambaInfo():
 
     def return_source_anchor(self,entry):
 
+        sid = get_string(self.samdb_loc.schema_format_value("objectSID", entry["objectSID"][0]))
+
         if self.SourceAnchorAttr.lower() in ['objectGUID'.lower(),'objectSID'.lower()]:
             SourceAnchor = base64.b64encode(entry[self.SourceAnchorAttr][0])
+
+        elif self.SourceAnchorAttr.lower() == "objectSID_str".lower():
+            SourceAnchor = sid
+
         else:
             SourceAnchor = entry[self.SourceAnchorAttr][0]
 
-        sid = get_string(self.samdb_loc.schema_format_value("objectSID", entry["objectSID"][0]))
+        
 
         if sid.startswith('S-1-5-32-'):
             return ""
         if int(sid.rsplit('-',)[-1]) < 1000:
             return ""
 
-        if self.SourceAnchorAttr.lower() == "objectSID_str".lower():
-            SourceAnchor = sid
 
         if type(SourceAnchor) != str:
             SourceAnchor = SourceAnchor.decode('utf-8')
