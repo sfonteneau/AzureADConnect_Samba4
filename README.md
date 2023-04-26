@@ -29,7 +29,7 @@ The script does not support 2FA authentication for the "mailadmin" account indic
 
 userPrincipalName is used for the email address
 
-password writeback not supported
+"password writeback" not supported
 
 User and group management only (not device)
 
