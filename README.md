@@ -37,7 +37,7 @@ User and group management only (not device)
 sourceanchor
 ***************
 
-The default sourceanchor in azure.conf.exemple is the objectGUID_base64 with msDSConsistencyGuid! read : https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#using-ms-ds-consistencyguid-as-sourceanchor
+The default sourceanchor in azure.conf.exemple is the objectGUID with msDSConsistencyGuid! read : https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#using-ms-ds-consistencyguid-as-sourceanchor
 
 You can run the script on a previous installation but you have to pay attention to the previous configuration of your azure ad connect (sourceanchor)
 
