@@ -20,6 +20,7 @@ You can try like this:
 
 python3 /opt/sync-azure/run_sync.py
 
+The script sends all users and groups a first time and then only sends what has been modified since the last send during the next launch.
 
 Warning
 ========
