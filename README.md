@@ -24,10 +24,18 @@ python3 /opt/sync-azure/run_sync.py
 Warning
 ========
 
-The sourceanchor is the sid! do not run on an existing installation! 
-
 userPrincipalName is used for the email address
 
 password writeback not supported
 
 User and group management only (not device)
+
+
+sourceanchor
+***************
+
+The default sourceanchor in azure.conf.exemple is the objectGUID_base64 with msDSConsistencyGuid! read : https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#using-ms-ds-consistencyguid-as-sourceanchor
+
+You can run the script on a previous installation but you have to pay attention to the previous configuration of your azure ad connect (sourceanchor)
+
+If "sourceanchor" changes, it will initiate object deletions and then object recreations. You must therefore choose your sourceanchor well and not change it

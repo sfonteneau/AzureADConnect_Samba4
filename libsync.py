@@ -130,7 +130,10 @@ class SambaInfo():
 
             hashnt = password[passwordattr][0].hex().upper()
 
-            SourceAnchor = user[self.SourceAnchorAttr][0]
+            if self.SourceAnchorAttr.lower() == 'objectGUID_base64'.lower()
+                SourceAnchor = base64.b64encode(user['objectGUID'][0])
+            else:
+                SourceAnchor = user[self.SourceAnchorAttr][0]
 
             sid = get_string(self.samdb_loc.schema_format_value("objectSID", user["objectSID"][0]))
 
@@ -197,7 +200,10 @@ ms-DS-ConsistencyGuid: %s
 
         self.dict_all_group_samba = {}
         for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
-            SourceAnchor = group[self.SourceAnchorAttr][0]
+            if self.SourceAnchorAttr.lower() == 'objectGUID_base64'.lower()
+                SourceAnchor = base64.b64encode(group['objectGUID'][0])
+            else:
+                SourceAnchor = group[self.SourceAnchorAttr][0]
 
             sid = get_string(self.samdb_loc.schema_format_value("objectSID", group["objectSID"][0]))
 
@@ -230,7 +236,10 @@ ms-DS-ConsistencyGuid: %s
 
         for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
 
-            SourceAnchor = group[self.SourceAnchorAttr][0]
+            if self.SourceAnchorAttr.lower() == 'objectGUID_base64'.lower()
+                SourceAnchor = base64.b64encode(group['objectGUID'][0])
+            else:
+                SourceAnchor = group[self.SourceAnchorAttr][0]
 
             sid = get_string(self.samdb_loc.schema_format_value("objectSID", group["objectSID"][0]))
 
