@@ -233,6 +233,24 @@ ms-DS-ConsistencyGuid: %s
                 SourceAnchor = SourceAnchor.decode('utf-8')
 
 
+            msDSConsistencyGuid = group.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
+
+            if self.use_msDSConsistencyGuid_if_exist:
+                if msDSConsistencyGuid :
+                    SourceAnchor = msDSConsistencyGuid
+
+            if self.write_msDSConsistencyGuid_if_empty:
+                if not msDSConsistencyGuid :
+                    ldif_data = """dn: %s
+changetype: modify
+replace: ms-DS-ConsistencyGuid
+ms-DS-ConsistencyGuid: %s
+""" % (group['distinguishedName'][0].decode('utf-8'),SourceAnchor)
+                    print('Set ms-DS-ConsistencyGuid=%s on %s ' % (SourceAnchor,group['distinguishedName'][0].decode('utf-8')))
+                    if not self.dry_run:
+                        self.samdb_loc.modify_ldif(ldif_data)
+
+
             data = {
                            "SourceAnchor"               : SourceAnchor,
                            "onPremisesSamAccountName"   : group.get("sAMAccountName",[b''])[0].decode('utf-8'),
@@ -266,6 +284,13 @@ ms-DS-ConsistencyGuid: %s
 
             if type(SourceAnchor) != str:
                 SourceAnchor = SourceAnchor.decode('utf-8')
+
+
+            msDSConsistencyGuid = group.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
+
+            if self.use_msDSConsistencyGuid_if_exist:
+                if msDSConsistencyGuid :
+                    SourceAnchor = msDSConsistencyGuid
 
             list_member=[]
             for m in group.get('member',[]):
