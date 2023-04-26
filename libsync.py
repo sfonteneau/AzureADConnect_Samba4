@@ -129,44 +129,42 @@ class SambaInfo():
 
         sid = get_string(self.samdb_loc.schema_format_value("objectSID", entry["objectSID"][0]))
 
-        if self.SourceAnchorAttr.lower() in ['objectGUID'.lower(),'objectSID'.lower()]:
-            SourceAnchor = base64.b64encode(entry[self.SourceAnchorAttr][0])
-
-        elif self.SourceAnchorAttr.lower() == "objectSID_str".lower():
-            SourceAnchor = sid
-
-        else:
-            SourceAnchor = entry[self.SourceAnchorAttr][0]
-
-        
-
         if sid.startswith('S-1-5-32-'):
             return ""
         if int(sid.rsplit('-',)[-1]) < 1000:
             return ""
 
+        if self.SourceAnchorAttr.lower() == "objectSID_str".lower():
+            SourceAnchor = sid
+        else:
+            SourceAnchor = entry[self.SourceAnchorAttr][0]
 
-        if type(SourceAnchor) != str:
-            SourceAnchor = SourceAnchor.decode('utf-8')
+        if type(SourceAnchor) == str:
+            SourceAnchor = SourceAnchor.encode('utf-8')
 
-        msDSConsistencyGuid = entry.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
+        msDSConsistencyGuid = entry.get("ms-DS-ConsistencyGuid",[b''])[0]
 
         if self.use_msDSConsistencyGuid_if_exist:
             if msDSConsistencyGuid :
                 SourceAnchor = msDSConsistencyGuid
+
+        try:
+            decode_SourceAnchor = SourceAnchor.decode('utf-8')
+        except:
+            decode_SourceAnchor= base64.b64encode(SourceAnchor).decode('utf-8')
 
         if self.write_msDSConsistencyGuid_if_empty:
             if not msDSConsistencyGuid :
                 ldif_data = """dn: %s
 changetype: modify
 replace: ms-DS-ConsistencyGuid
-ms-DS-ConsistencyGuid: %s
-""" % (entry['distinguishedName'][0].decode('utf-8'),SourceAnchor)
-                print('Set ms-DS-ConsistencyGuid=%s on %s ' % (SourceAnchor,entry['distinguishedName'][0].decode('utf-8')))
+ms-DS-ConsistencyGuid:: %s
+""" % (entry['distinguishedName'][0].decode('utf-8'), base64.b64encode(SourceAnchor).decode('utf-8'))
+                print('Set ms-DS-ConsistencyGuid=%s on %s ' % (decode_SourceAnchor,entry['distinguishedName'][0].decode('utf-8')))
                 if not self.dry_run:
                     self.samdb_loc.modify_ldif(ldif_data)
 
-        return SourceAnchor
+        return decode_SourceAnchor
 
 
 
