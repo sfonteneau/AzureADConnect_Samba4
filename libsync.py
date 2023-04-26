@@ -124,36 +124,22 @@ class SambaInfo():
         self.write_msDSConsistencyGuid_if_empty = None
         self.use_msDSConsistencyGuid_if_exist = None
 
-    def generate_all_dict(self):
-        self.dict_all_users_samba={}
-        self.all_dn={}
-        self.dict_id_hash = {}
-        # Search all users
-        for user in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(&(objectClass=user)(!(objectClass=computer)))"):
 
-            Random.atfork()
+        def return_source_anchor(self,entry):
 
-            # Update if password different in dict mail pwdlastset
-            passwordattr = 'unicodePwd'
-            password = self.testpawd.get_account_attributes(self.samdb_loc,None,self.samdb_loc.get_default_basedn(),filter="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr],decrypt=False)
-            if not passwordattr in password:
-                continue
-
-            hashnt = password[passwordattr][0].hex().upper()
-
-            if self.SourceAnchorAttr.lower() == 'objectGUID_base64'.lower():
-                SourceAnchor = base64.b64encode(user['objectGUID'][0])
+            if self.SourceAnchorAttr.lower() in ['objectGUID'.lower(),'objectSID'.lower()]:
+                SourceAnchor = base64.b64encode(user[self.SourceAnchorAttr][0])
             else:
                 SourceAnchor = user[self.SourceAnchorAttr][0]
 
             sid = get_string(self.samdb_loc.schema_format_value("objectSID", user["objectSID"][0]))
 
             if sid.startswith('S-1-5-32-'):
-                continue
+                return ""
             if int(sid.rsplit('-',)[-1]) < 1000:
-                continue
+                return ""
 
-            if self.SourceAnchorAttr.lower() == "objectSID".lower():
+            if self.SourceAnchorAttr.lower() == "objectSID_str".lower():
                 SourceAnchor = sid
 
             if type(SourceAnchor) != str:
@@ -175,6 +161,32 @@ ms-DS-ConsistencyGuid: %s
                     print('Set ms-DS-ConsistencyGuid=%s on %s ' % (SourceAnchor,user['distinguishedName'][0].decode('utf-8')))
                     if not self.dry_run:
                         self.samdb_loc.modify_ldif(ldif_data)
+
+            return SourceAnchor
+
+
+
+    def generate_all_dict(self):
+        self.dict_all_users_samba={}
+        self.all_dn={}
+        self.dict_id_hash = {}
+        # Search all users
+        for user in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(&(objectClass=user)(!(objectClass=computer)))"):
+
+            Random.atfork()
+
+            # Update if password different in dict mail pwdlastset
+            passwordattr = 'unicodePwd'
+            password = self.testpawd.get_account_attributes(self.samdb_loc,None,self.samdb_loc.get_default_basedn(),filter="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr],decrypt=False)
+            if not passwordattr in password:
+                continue
+
+            hashnt = password[passwordattr][0].hex().upper()
+
+            SourceAnchor = self.return_source_anchor(user)
+            if not SourceAnchor:
+                continue
+
 
             self.dict_id_hash[SourceAnchor]=hashnt
             if int(user["userAccountControl"][0]) & UF_ACCOUNTDISABLE:
@@ -213,43 +225,10 @@ ms-DS-ConsistencyGuid: %s
 
         self.dict_all_group_samba = {}
         for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
-            if self.SourceAnchorAttr.lower() == 'objectGUID_base64'.lower():
-                SourceAnchor = base64.b64encode(group['objectGUID'][0])
-            else:
-                SourceAnchor = group[self.SourceAnchorAttr][0]
 
-            sid = get_string(self.samdb_loc.schema_format_value("objectSID", group["objectSID"][0]))
-
-            if sid.startswith('S-1-5-32-'):
+            SourceAnchor = self.return_source_anchor(group)
+            if not SourceAnchor:
                 continue
-            if int(sid.rsplit('-',)[-1]) < 1000:
-                continue
-
-            if self.SourceAnchorAttr.lower() == "objectSID".lower():
-                SourceAnchor = sid
-
-
-            if type(SourceAnchor) != str:
-                SourceAnchor = SourceAnchor.decode('utf-8')
-
-
-            msDSConsistencyGuid = group.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
-
-            if self.use_msDSConsistencyGuid_if_exist:
-                if msDSConsistencyGuid :
-                    SourceAnchor = msDSConsistencyGuid
-
-            if self.write_msDSConsistencyGuid_if_empty:
-                if not msDSConsistencyGuid :
-                    ldif_data = """dn: %s
-changetype: modify
-replace: ms-DS-ConsistencyGuid
-ms-DS-ConsistencyGuid: %s
-""" % (group['distinguishedName'][0].decode('utf-8'),SourceAnchor)
-                    print('Set ms-DS-ConsistencyGuid=%s on %s ' % (SourceAnchor,group['distinguishedName'][0].decode('utf-8')))
-                    if not self.dry_run:
-                        self.samdb_loc.modify_ldif(ldif_data)
-
 
             data = {
                            "SourceAnchor"               : SourceAnchor,
@@ -267,30 +246,9 @@ ms-DS-ConsistencyGuid: %s
 
         for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
 
-            if self.SourceAnchorAttr.lower() == 'objectGUID_base64'.lower():
-                SourceAnchor = base64.b64encode(group['objectGUID'][0])
-            else:
-                SourceAnchor = group[self.SourceAnchorAttr][0]
-
-            sid = get_string(self.samdb_loc.schema_format_value("objectSID", group["objectSID"][0]))
-
-            if sid.startswith('S-1-5-32-'):
+            SourceAnchor = self.return_source_anchor(group)
+            if not SourceAnchor:
                 continue
-            if int(sid.rsplit('-',)[-1]) < 1000:
-                continue
-
-            if self.SourceAnchorAttr.lower() == "objectSID".lower():
-                SourceAnchor = sid
-
-            if type(SourceAnchor) != str:
-                SourceAnchor = SourceAnchor.decode('utf-8')
-
-
-            msDSConsistencyGuid = group.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
-
-            if self.use_msDSConsistencyGuid_if_exist:
-                if msDSConsistencyGuid :
-                    SourceAnchor = msDSConsistencyGuid
 
             list_member=[]
             for m in group.get('member',[]):
