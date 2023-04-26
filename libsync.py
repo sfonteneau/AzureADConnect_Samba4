@@ -125,44 +125,44 @@ class SambaInfo():
         self.use_msDSConsistencyGuid_if_exist = None
 
 
-        def return_source_anchor(self,entry):
+    def return_source_anchor(self,entry):
 
-            if self.SourceAnchorAttr.lower() in ['objectGUID'.lower(),'objectSID'.lower()]:
-                SourceAnchor = base64.b64encode(user[self.SourceAnchorAttr][0])
-            else:
-                SourceAnchor = user[self.SourceAnchorAttr][0]
+        if self.SourceAnchorAttr.lower() in ['objectGUID'.lower(),'objectSID'.lower()]:
+            SourceAnchor = base64.b64encode(user[self.SourceAnchorAttr][0])
+        else:
+            SourceAnchor = user[self.SourceAnchorAttr][0]
 
-            sid = get_string(self.samdb_loc.schema_format_value("objectSID", user["objectSID"][0]))
+        sid = get_string(self.samdb_loc.schema_format_value("objectSID", user["objectSID"][0]))
 
-            if sid.startswith('S-1-5-32-'):
-                return ""
-            if int(sid.rsplit('-',)[-1]) < 1000:
-                return ""
+        if sid.startswith('S-1-5-32-'):
+            return ""
+        if int(sid.rsplit('-',)[-1]) < 1000:
+            return ""
 
-            if self.SourceAnchorAttr.lower() == "objectSID_str".lower():
-                SourceAnchor = sid
+        if self.SourceAnchorAttr.lower() == "objectSID_str".lower():
+            SourceAnchor = sid
 
-            if type(SourceAnchor) != str:
-                SourceAnchor = SourceAnchor.decode('utf-8')
+        if type(SourceAnchor) != str:
+            SourceAnchor = SourceAnchor.decode('utf-8')
 
-            msDSConsistencyGuid = user.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
+        msDSConsistencyGuid = user.get("ms-DS-ConsistencyGuid",[b''])[0].decode('utf-8')
 
-            if self.use_msDSConsistencyGuid_if_exist:
-                if msDSConsistencyGuid :
-                    SourceAnchor = msDSConsistencyGuid
+        if self.use_msDSConsistencyGuid_if_exist:
+            if msDSConsistencyGuid :
+                SourceAnchor = msDSConsistencyGuid
 
-            if self.write_msDSConsistencyGuid_if_empty:
-                if not msDSConsistencyGuid :
-                    ldif_data = """dn: %s
+        if self.write_msDSConsistencyGuid_if_empty:
+            if not msDSConsistencyGuid :
+                ldif_data = """dn: %s
 changetype: modify
 replace: ms-DS-ConsistencyGuid
 ms-DS-ConsistencyGuid: %s
 """ % (user['distinguishedName'][0].decode('utf-8'),SourceAnchor)
-                    print('Set ms-DS-ConsistencyGuid=%s on %s ' % (SourceAnchor,user['distinguishedName'][0].decode('utf-8')))
-                    if not self.dry_run:
-                        self.samdb_loc.modify_ldif(ldif_data)
+                print('Set ms-DS-ConsistencyGuid=%s on %s ' % (SourceAnchor,user['distinguishedName'][0].decode('utf-8')))
+                if not self.dry_run:
+                    self.samdb_loc.modify_ldif(ldif_data)
 
-            return SourceAnchor
+        return SourceAnchor
 
 
 
