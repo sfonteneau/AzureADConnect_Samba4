@@ -7,6 +7,7 @@ Test
  - git clone https://github.com/sfonteneau/AzureADConnect_Samba4.git
  - mv AzureADConnect_Samba4 /opt/sync-azure
  - cd /opt/sync-azure/
+ - pip3 install -r requirements.txt
  - git submodule update --progress --init -- "AADInternals_python"
  - cd /opt/sync-azure/AADInternals_python
  - pip3 install -r requirements.txt
