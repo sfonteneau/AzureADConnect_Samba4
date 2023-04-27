@@ -4,13 +4,14 @@ passwordadmin = password
 proxy =
 
 ;https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#sourceanchor
-
 SourceAnchorAttr=objectGUID
 
 ;https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#using-ms-ds-consistencyguid-as-sourceanchor 
-
 write_msDSConsistencyGuid_if_empty = True
 use_msDSConsistencyGuid_if_exist = True
+
+;https://learn.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-password-hash-synchronization
+hash_synchronization=True
 
 ; When dry_run is "True", the script will display the actions but will not perform the action
 dry_run=True

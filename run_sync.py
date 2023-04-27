@@ -44,6 +44,8 @@ def run_sync(force=False):
 
     dry_run = config.getboolean('common', 'dry_run')
 
+    hash_synchronization = config.getboolean('common', 'hash_synchronization')
+
     if dry_run:
         print('DRY RUN ON: the script will not perform any actions')
 
@@ -59,7 +61,7 @@ def run_sync(force=False):
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
     smb.dry_run = dry_run
 
-    if not last_send_password :
+    if not last_send_user :
         # enable ad sync
         print('enable ad sync')
         azure.enable_ad_sync()
@@ -131,26 +133,27 @@ def run_sync(force=False):
 
 
     #send all_password
-    for entry in smb.dict_id_hash :
-        if last_send_password.get(entry) != smb.dict_id_hash[entry] or force:
-            print('send hash for SourceAnchor: %s %s' % (entry,smb.dict_all_users_samba[entry]['onPremisesSamAccountName']))
+    if hash_synchronization:
+        for entry in smb.dict_id_hash :
+            if last_send_password.get(entry) != smb.dict_id_hash[entry] or force:
+                print('send hash for SourceAnchor: %s %s' % (entry,smb.dict_all_users_samba[entry]['onPremisesSamAccountName']))
 
-            # Microsoft is very slow between sending the account and sending the password
-            try:
-                azure.send_hashnt(smb.dict_id_hash[entry],entry)
-            except Exception as e:
-                if "Result" in str(e):
-                    print('Fail, we may be a little too fast for microsoft, we will wait and try again ...' )
-                    time.sleep(30)
+                # Microsoft is very slow between sending the account and sending the password
+                try:
                     azure.send_hashnt(smb.dict_id_hash[entry],entry)
-                else:
-                    raise
+                except Exception as e:
+                    if "Result" in str(e):
+                        print('Fail, we may be a little too fast for microsoft, we will wait and try again ...' )
+                        time.sleep(30)
+                        azure.send_hashnt(smb.dict_id_hash[entry],entry)
+                    else:
+                        raise
 
-            last_send_password[entry] = smb.dict_id_hash[entry]
+                last_send_password[entry] = smb.dict_id_hash[entry]
 
-    if not dry_run :
-        with open(file_last_send_password,'w') as f :
-            f.write(json.dumps(last_send_password))
+        if not dry_run :
+            with open(file_last_send_password,'w') as f :
+                f.write(json.dumps(last_send_password))
 
 
 
