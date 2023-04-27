@@ -1,8 +1,8 @@
 Installation
 ========================
 
-Test
-=====
+Install notes
+==============
  - apt-get install python3-pip git
  - cd /tmp
  - git clone https://github.com/sfonteneau/AzureADConnect_Samba4.git
