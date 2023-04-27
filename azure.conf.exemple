@@ -3,8 +3,12 @@ mailadmin = exemple@domain.com
 passwordadmin = password
 proxy =
 
-; default mode https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#using-ms-ds-consistencyguid-as-sourceanchor :
+;https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#sourceanchor
+
 SourceAnchorAttr=objectGUID
+
+;https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#using-ms-ds-consistencyguid-as-sourceanchor 
+
 write_msDSConsistencyGuid_if_empty = True
 use_msDSConsistencyGuid_if_exist = True
 
