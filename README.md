@@ -4,6 +4,7 @@ Installation
 Test
 =====
  - apt-get install python3-pip git
+ - cd /tmp
  - git clone https://github.com/sfonteneau/AzureADConnect_Samba4.git
  - mv AzureADConnect_Samba4 /opt/sync-azure
  - cd /opt/sync-azure/
