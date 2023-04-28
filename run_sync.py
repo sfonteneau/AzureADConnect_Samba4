@@ -66,9 +66,10 @@ def run_sync(force=False):
         print('enable ad sync')
         azure.enable_ad_sync()
 
-        # enable password hash sync
-        print('enable password hash sync')
-        azure.enable_password_hash_sync()
+        if hash_synchronization and (not last_send_password):
+            # enable password hash sync
+            print('enable password hash sync')
+            azure.enable_password_hash_sync()
 
     smb.generate_all_dict()
     azure.generate_all_dict()
