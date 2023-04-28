@@ -12,7 +12,7 @@ Install notes
  - git submodule update --progress --init -- "python_wcfbin"
  - mkdir /etc/azureconf/
  - cd /opt/sync-azure
- - cp -f azure.conf.exemple /etc/azureconf/
+ - cp -f azure.conf.exemple /etc/azureconf/azure.conf
  - Configure /etc/azureconf/azure.conf
 
 You can try like this:
