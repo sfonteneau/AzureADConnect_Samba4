@@ -14,7 +14,6 @@ from samba.netcmd.user import GetPasswordCommand
 from AADInternals_python.AADInternals import AADInternals
 from Crypto import Random
 from samba.dsdb import UF_ACCOUNTDISABLE
-from samba.common import get_string
 
 import optparse
 import samba.getopt as options
@@ -127,7 +126,7 @@ class SambaInfo():
 
     def return_source_anchor(self,entry):
 
-        sid = get_string(self.samdb_loc.schema_format_value("objectSID", entry["objectSID"][0]))
+        sid = self.samdb_loc.schema_format_value("objectSID", entry["objectSID"][0]).decode('utf-8')
 
         if sid.startswith('S-1-5-32-'):
             return ""
