@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import sys
-import syslog
 import json
 import ldb
 import base64
@@ -17,10 +16,6 @@ from samba.dsdb import UF_ACCOUNTDISABLE
 
 import optparse
 import samba.getopt as options
-
-
-## Open connection to Syslog ##
-syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_LOCAL3)
 
 
 class AdConnect():

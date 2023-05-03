@@ -15,3 +15,6 @@ hash_synchronization=True
 
 ; When dry_run is "True", the script will display the actions but will not perform the action
 dry_run=True
+
+; db file, the last data sent is stored there.
+dbpath = /opt/sync-azure/last_send.db

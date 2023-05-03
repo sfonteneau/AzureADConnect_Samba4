@@ -1,46 +1,42 @@
 import os
+import datetime
 import sys
 import json
 import pickle
 import hashlib
 import time
 import configparser
+from peewee import SqliteDatabase,CharField,Model,TextField,DateTimeField
 
 if "__file__" in locals():
     sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
 from libsync import AdConnect,SambaInfo
-path_az=os.path.dirname(os.path.realpath(__file__))
-last_send_user={}
-file_last_send_user = os.path.join(path_az,'last_send_user.json')
-last_send_group={}
-file_last_send_group = os.path.join(path_az,'last_send_group.json')
-last_send_password={}
-file_last_send_password = os.path.join(path_az,'last_send_password.json')
 
-path_az= os.path.dirname(os.path.realpath(__file__))
+azureconf='/etc/azureconf/azure.conf'
+config = configparser.ConfigParser()
+config.read(azureconf)
 
-if os.path.isfile(file_last_send_user):
-    with open(file_last_send_user,'r') as f:
-        last_send_user=json.loads(f.read())
+db = SqliteDatabase(config.get('common', 'dbpath'))
 
-if os.path.isfile(file_last_send_group):
-    with open(file_last_send_group,'r') as f:
-        last_send_group=json.loads(f.read())
+class AzureObject(Model):
+    sourceanchor = CharField(primary_key=True, index=True)
+    object_type = CharField(null=True)
+    last_data_send = TextField(null=True)
+    last_data_send_date = DateTimeField(null=True)
+    last_sha256_hashnt_send = TextField(null=True)
+    last_send_hashnt_date = DateTimeField(null=True)
 
-if os.path.isfile(file_last_send_password):
-     with open(file_last_send_password,'r') as f:
-        last_send_password=json.loads(f.read())
+    class Meta:
+        database = db
 
 def hash_for_data(data):
     return hashlib.sha1(pickle.dumps(data)).hexdigest()
 
 def run_sync(force=False):
 
-    azureconf='/etc/azureconf/azure.conf'
-
-    config = configparser.ConfigParser()
-    config.read(azureconf)
+    global config
+    global db
 
     dry_run = config.getboolean('common', 'dry_run')
 
@@ -61,15 +57,20 @@ def run_sync(force=False):
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
     smb.dry_run = dry_run
 
-    if not last_send_user :
+
+
+    if not AzureObject.table_exists():
         # enable ad sync
         print('enable ad sync')
         azure.enable_ad_sync()
 
-        if hash_synchronization and (not last_send_password):
-            # enable password hash sync
-            print('enable password hash sync')
-            azure.enable_password_hash_sync()
+        # enable password hash sync
+        print('enable password hash sync')
+        azure.enable_password_hash_sync()
+
+    if not AzureObject.table_exists():
+        db.create_tables([AzureObject])
+
 
     smb.generate_all_dict()
     azure.generate_all_dict()
@@ -79,8 +80,8 @@ def run_sync(force=False):
         if not user in smb.dict_all_users_samba:
             print('Delete user %s' % azure.dict_az_user[user])
             azure.delete_user(user)
-            if user in last_send_user:
-                del last_send_user[user]
+            if not dry_run:
+                AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type='user')
 
 
     # Delete group in azure and not found in samba
@@ -88,38 +89,44 @@ def run_sync(force=False):
         if not group in smb.dict_all_group_samba:
             print('Delete group %s' % azure.dict_az_group[group])
             azure.delete_group(group)
-            if group in last_send_group:
-                del last_send_group[group]
+            if not dry_run:
+                AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type='group')
 
     #create all user found samba
     for entry in smb.dict_all_users_samba:
-        data_hash = hash_for_data(smb.dict_all_users_samba[entry])
-        if last_send_user.get(entry) != data_hash or force:
+        last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='user').first()
+        if force or (not last_data) or json.loads(last_data.last_data_send) != smb.dict_all_users_samba[entry] :
             print('Send user %s' % smb.dict_all_users_samba[entry])
             azure.send_user_to_az(smb.dict_all_users_samba[entry])
-            last_send_user[entry] = data_hash
+            if not dry_run:
+                if not last_data:
+                    AzureObject.insert(sourceanchor=entry,object_type='user',last_data_send =json.dumps(smb.dict_all_users_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
+                else:
+                    AzureObject.update(last_data_send =json.dumps(smb.dict_all_users_samba[entry]),last_data_send_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
-    if not dry_run :
-        with open(file_last_send_user,'w') as f :
-            f.write(json.dumps(last_send_user))
 
     #create all group found samba
     list_nested_group = {}
     list_group_create = {}
 
     for entry in smb.dict_all_group_samba:
-        if not entry in last_send_group:
+        if not AzureObject.select(AzureObject.sourceanchor).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='group').first():
             list_group_create[entry] = None
 
     for entry in smb.dict_all_group_samba:
-        data_hash = hash_for_data(smb.dict_all_group_samba[entry])
-        if last_send_group.get(entry) != data_hash or force:
+        last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='group').first()
+        if force or (not last_data) or json.loads(last_data.last_data_send) != smb.dict_all_group_samba[entry] :
             print('Send group %s' % smb.dict_all_group_samba[entry])
             azure.send_group_to_az(smb.dict_all_group_samba[entry])
+            if not dry_run:
+                if not last_data:
+                    AzureObject.insert(sourceanchor=entry,object_type='group',last_data_send =json.dumps(smb.dict_all_group_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
+                else:
+                    AzureObject.update(last_data_send =json.dumps(smb.dict_all_group_samba[entry]),last_data_send_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
+
             for g in smb.dict_all_group_samba[entry]["groupMembers"]:
                 if g in list_group_create:
                     list_nested_group[entry] = None
-            last_send_group[entry] = data_hash
 
     if list_nested_group:
         print('New group with nested detected wait 30s')
@@ -127,16 +134,15 @@ def run_sync(force=False):
         for entry in list_nested_group:
             azure.send_group_to_az(smb.dict_all_group_samba[entry])
 
-    if not dry_run :
-        with open(file_last_send_group,'w') as f :
-            f.write(json.dumps(last_send_group))
 
 
 
     #send all_password
     if hash_synchronization:
         for entry in smb.dict_id_hash :
-            if last_send_password.get(entry) != smb.dict_id_hash[entry] or force:
+            sha2password= hash_for_data(smb.dict_all_users_samba[entry])
+            last_data =  AzureObject.select(AzureObject.last_sha256_hashnt_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='user').first()
+            if force or (not last_data) or last_data.last_sha256_hashnt_send != sha2password :
                 print('send hash for SourceAnchor: %s %s' % (entry,smb.dict_all_users_samba[entry]['onPremisesSamAccountName']))
 
                 # Microsoft is very slow between sending the account and sending the password
@@ -150,15 +156,10 @@ def run_sync(force=False):
                     else:
                         raise
 
-                last_send_password[entry] = smb.dict_id_hash[entry]
-
-        if not dry_run :
-            with open(file_last_send_password,'w') as f :
-                f.write(json.dumps(last_send_password))
-
-
-
-    # TODO BACKUP LAST HASH
+                if not dry_run:
+                    AzureObject.update(last_sha256_hashnt_send = sha2password,last_send_hashnt_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
 if __name__ == '__main__':
     run_sync(force=False)
+
+db.close()
