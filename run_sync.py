@@ -81,7 +81,7 @@ def run_sync(force=False):
             print('Delete user %s' % azure.dict_az_user[user])
             azure.delete_user(user)
             if not dry_run:
-                AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type='user')
+                AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type=='user')
 
 
     # Delete group in azure and not found in samba
@@ -90,7 +90,7 @@ def run_sync(force=False):
             print('Delete group %s' % azure.dict_az_group[group])
             azure.delete_group(group)
             if not dry_run:
-                AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type='group')
+                AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type=='group')
 
     #create all user found samba
     for entry in smb.dict_all_users_samba:
