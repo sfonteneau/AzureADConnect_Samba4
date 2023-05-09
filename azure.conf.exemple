@@ -3,6 +3,9 @@ mailadmin = exemple@domain.com
 passwordadmin = password
 proxy =
 
+;remove accounts with a "sourceanchor" online and not found in samba
+do_delete=True
+
 ;https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#sourceanchor
 SourceAnchorAttr=objectGUID
 
