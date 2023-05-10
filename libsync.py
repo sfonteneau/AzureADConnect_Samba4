@@ -194,6 +194,8 @@ ms-DS-ConsistencyGuid:: %s
                        "onPremisesDistinguishedName": str(user["dn"]),
                        "dnsDomainName"              : self.domaine,
                        "displayName"                : user.get("displayName",[b''])[0].decode('utf-8'),
+                       "onPremiseSecurityIdentifier": base64.b64encode(user["objectSid"][0]).decode('utf-8'),
+                       "userCertificate"            : [base64.b64encode(c).decode('utf-8') for c in user.get("userCertificate",[])],
                        "givenName"                  : user.get("givenName",[b''])[0].decode('utf-8'),
                        "surname"                    : user.get("sn",[b''])[0].decode('utf-8'),
                        "commonName"                 : user.get("cn",[b''])[0].decode('utf-8'),
