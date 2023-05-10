@@ -106,7 +106,7 @@ def run_sync(force=False):
         last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='user').first()
         if force or (not last_data) or json.loads(last_data.last_data_send) != smb.dict_all_users_samba[entry] :
             print('Send user %s' % smb.dict_all_users_samba[entry])
-            azure.send_user_to_az(smb.dict_all_users_samba[entry])
+            azure.send_obj_to_az(smb.dict_all_users_samba[entry])
             if not dry_run:
                 if not last_data:
                     AzureObject.insert(sourceanchor=entry,object_type='user',last_data_send =json.dumps(smb.dict_all_users_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
@@ -119,7 +119,7 @@ def run_sync(force=False):
             last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='device').first()
             if force or (not last_data) or json.loads(last_data.last_data_send) != smb.dict_all_device_samba[entry] :
                 print('Send device %s' % smb.dict_all_device_samba[entry])
-                azure.send_user_to_az(smb.dict_all_device_samba[entry])
+                azure.send_obj_to_az(smb.dict_all_device_samba[entry])
                 if not dry_run:
                     if not last_data:
                         AzureObject.insert(sourceanchor=entry,object_type='device',last_data_send =json.dumps(smb.dict_all_device_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
@@ -138,7 +138,7 @@ def run_sync(force=False):
         last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='group').first()
         if force or (not last_data) or json.loads(last_data.last_data_send) != smb.dict_all_group_samba[entry] :
             print('Send group %s' % smb.dict_all_group_samba[entry])
-            azure.send_group_to_az(smb.dict_all_group_samba[entry])
+            azure.send_obj_to_az(smb.dict_all_group_samba[entry])
             if not dry_run:
                 if not last_data:
                     AzureObject.insert(sourceanchor=entry,object_type='group',last_data_send =json.dumps(smb.dict_all_group_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
@@ -153,7 +153,7 @@ def run_sync(force=False):
         print('New group with nested detected wait 30s')
         time.sleep(30)
         for entry in list_nested_group:
-            azure.send_group_to_az(smb.dict_all_group_samba[entry])
+            azure.send_obj_to_az(smb.dict_all_group_samba[entry])
 
 
 

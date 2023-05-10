@@ -49,15 +49,10 @@ class AdConnect():
         if not self.dry_run:
             self.az.set_sync_features(enable_features=['PasswordHashSync'])
 
-    def send_user_to_az(self,entry):
+    def send_obj_to_az(self,entry):
         self.connect()
         if not self.dry_run:
             self.az.set_azureadobject(**entry)
-
-    def send_group_to_az(self,entry):
-        self.connect()
-        if not self.dry_run:
-            self.az.set_azureadobject(**entry,usertype='Group')
 
     def delete_user(self,entry):
         if not self.dry_run:
@@ -263,7 +258,8 @@ ms-DS-ConsistencyGuid:: %s
                            "dnsDomainName"              : self.domaine,
                            "displayName"                : group.get("sAMAccountName",[b''])[0].decode('utf-8'),
                            "groupMembers"               : [],
-                           "SecurityEnabled"            : group.get("grouptype",[b''])[0].decode('utf-8') in ['-2147483644','-2147483640','-2147483646']
+                           "SecurityEnabled"            : group.get("grouptype",[b''])[0].decode('utf-8') in ['-2147483644','-2147483640','-2147483646'],
+                           "usertype"                   : "Group"
                        }
 
             self.all_dn[str(group["dn"])]=SourceAnchor
