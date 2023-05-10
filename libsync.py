@@ -238,7 +238,8 @@ ms-DS-ConsistencyGuid:: %s
                             "userCertificate"            : [base64.b64encode(c).decode('utf-8') for c in device.get("userCertificate",[])],
                             "deviceTrustType"            : "ServerAd",
                             "deviceId"                   : base64.b64encode(device["objectGUID"][0]).decode('utf-8'),
-                            "deviceOSType"               : "windows",
+                            "deviceOSType"               : device.get("operatingSystem",[b''])[0].decode('utf-8'),
+                            "deviceOSVersion"            : device.get("operatingSystemVersion",[b''])[0].decode('utf-8'),
                             "usertype"                   : "Device"
                         }
 
