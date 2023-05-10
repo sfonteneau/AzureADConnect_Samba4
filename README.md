@@ -30,7 +30,7 @@ userPrincipalName is used for the email address
 
 "password writeback" not supported
 
-User and group management only (not device)
+User and group management only (device in experimental)
 
 
 sourceanchor
