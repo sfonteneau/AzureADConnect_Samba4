@@ -110,6 +110,7 @@ class SambaInfo():
         self.testpawd.lp = lp
 
         self.dict_all_users_samba={}
+        self.dict_all_device_samba={}
         self.all_dn={}
         self.dict_id_hash = {}
         self.SourceAnchorAttr = SourceAnchorAttr
@@ -117,6 +118,7 @@ class SambaInfo():
         self.dry_run=True
         self.write_msDSConsistencyGuid_if_empty = None
         self.use_msDSConsistencyGuid_if_exist = None
+        self.add_device= False
 
 
     def return_source_anchor(self,entry):
@@ -213,10 +215,38 @@ ms-DS-ConsistencyGuid:: %s
                        "mail"                       : user.get("mail",[b''])[0].decode('utf-8'),
                        "mobile"                     : user.get("mobile",[b''])[0].decode('utf-8'),
                        "title"                      : user.get("title",[b''])[0].decode('utf-8'),
-                       "proxyAddresses"             : [p.decode('utf-8') for p in user.get("proxyAddresses",[])]
+                       "proxyAddresses"             : [p.decode('utf-8') for p in user.get("proxyAddresses",[])],
+                       "usertype"                   : "User"
                    }
             self.all_dn[str(user["dn"])]=SourceAnchor
             self.dict_all_users_samba[SourceAnchor] = data
+
+
+        if self.add_device:
+            self.dict_all_device_samba={}
+
+            for device in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=computer)"):
+
+                SourceAnchor = self.return_source_anchor(device)
+                if not SourceAnchor:
+                    continue
+
+                data = {
+                            "SourceAnchor"               : SourceAnchor,
+                            "onPremisesSamAccountName"   : device.get("sAMAccountName",[b''])[0].decode('utf-8'),
+                            "onPremisesDistinguishedName": str(device["dn"]),
+                            "dnsDomainName"              : self.domaine,
+                            "displayName"                : device.get("sAMAccountName",[b''])[0].decode('utf-8'),
+                            "onPremiseSecurityIdentifier": base64.b64encode(device.get("objectSid")).decode('utf-8'),
+                            "userCertificate"            : [base64.b64encode(c).decode('utf-8') for c in device.get("userCertificate",[])],
+                            "deviceTrustType"            : "ServerAd",
+                            "deviceId"                   : base64.b64encode(device.get("objectGUID")).decode('utf-8'),
+                            "deviceOSType"               : "windows",
+                            "usertype"                   : "Device"
+                        }
+
+                self.all_dn[str(device["dn"])]=SourceAnchor
+                self.dict_all_device_samba[SourceAnchor] = data            
 
 
         self.dict_all_group_samba = {}

@@ -42,6 +42,8 @@ def run_sync(force=False):
 
     hash_synchronization = config.getboolean('common', 'hash_synchronization')
 
+    sync_device = config.getboolean('common', 'sync_device')
+
     if dry_run:
         print('DRY RUN ON: the script will not perform any actions')
 
@@ -71,6 +73,10 @@ def run_sync(force=False):
     if not AzureObject.table_exists():
         db.create_tables([AzureObject])
 
+    if sync_device:
+        smb.add_device = True
+    else:
+        smb.add_device = False
 
     smb.generate_all_dict()
 
@@ -107,6 +113,18 @@ def run_sync(force=False):
                 else:
                     AzureObject.update(last_data_send =json.dumps(smb.dict_all_users_samba[entry]),last_data_send_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
+    if sync_device:
+        #create all device found samba (experimental)
+        for entry in smb.dict_all_device_samba:
+            last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='device').first()
+            if force or (not last_data) or json.loads(last_data.last_data_send) != smb.dict_all_device_samba[entry] :
+                print('Send device %s' % smb.dict_all_device_samba[entry])
+                azure.send_user_to_az(smb.dict_all_device_samba[entry])
+                if not dry_run:
+                    if not last_data:
+                        AzureObject.insert(sourceanchor=entry,object_type='device',last_data_send =json.dumps(smb.dict_all_device_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
+                    else:
+                        AzureObject.update(last_data_send =json.dumps(smb.dict_all_device_samba[entry]),last_data_send_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()        
 
     #create all group found samba
     list_nested_group = {}
