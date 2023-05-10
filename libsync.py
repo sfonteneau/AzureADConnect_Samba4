@@ -233,7 +233,7 @@ ms-DS-ConsistencyGuid:: %s
                             "onPremisesSamAccountName"   : device.get("sAMAccountName",[b''])[0].decode('utf-8'),
                             "onPremisesDistinguishedName": str(device["dn"]),
                             "dnsDomainName"              : self.domaine,
-                            "displayName"                : device.get("sAMAccountName",[b''])[0].decode('utf-8'),
+                            "displayName"                : device.get("sAMAccountName",[b''])[0].decode('utf-8').strip('$',''),
                             "onPremiseSecurityIdentifier": base64.b64encode(device["objectSid"][0]).decode('utf-8'),
                             "userCertificate"            : [base64.b64encode(c).decode('utf-8') for c in device.get("userCertificate",[])],
                             "deviceTrustType"            : "ServerAd",
