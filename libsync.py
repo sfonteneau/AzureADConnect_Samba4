@@ -116,6 +116,10 @@ class SambaInfo():
         self.use_msDSConsistencyGuid_if_exist = None
         self.add_device= False
 
+    def check_service_connection_point_existe(self):
+        configurationdn =  str(self.samdb_loc.get_config_basedn())
+        return  bool(self.samdb_loc.search(base=configurationdn,expression='(&(cn=62a0ff2e-97b9-4513-943f-0d221bd30080)(objectClass=serviceConnectionPoint))'))
+
     def write_service_connection_point(self,tenant_id,azureadname):
 
         configurationdn =  str(self.samdb_loc.get_config_basedn())
