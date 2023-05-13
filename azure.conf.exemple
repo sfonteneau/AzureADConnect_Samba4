@@ -11,6 +11,7 @@ do_delete=True
 ;sync device for hybrid join (write service_connection_point_existe in samba for HYBRID JOIN) 
 ;https://learn.microsoft.com/en-us/azure/active-directory/devices/device-registration-how-it-works#hybrid-azure-ad-joined-in-managed-environments
 sync_device=False
+create_service_connection_point=False
 
 ;https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#sourceanchor
 SourceAnchorAttr=objectGUID
