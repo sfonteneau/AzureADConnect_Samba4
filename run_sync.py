@@ -116,7 +116,7 @@ def run_sync(force=False):
     if sync_device:
         if not smb.check_service_connection_point_existe():
             azure.connect()
-            print('create service connection point for in ad for hybrid join')
+            print('create service connection point in samba for hybrid join')
             if not dry_run:
                 smb.write_service_connection_point(azure.tenant_id,config.get('common', 'azureadname'))
             
