@@ -114,11 +114,12 @@ def run_sync(force=False):
                     AzureObject.update(last_data_send =json.dumps(smb.dict_all_users_samba[entry]),last_data_send_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
     if sync_device:
-        if not smb.check_service_connection_point_existe():
-            azure.connect()
-            print('create service connection point in samba for hybrid join')
-            if not dry_run:
-                smb.write_service_connection_point(azure.tenant_id,config.get('common', 'azureadname'))
+        if config.getboolean('common', 'create_service_connection_point'):
+            if not smb.check_service_connection_point_existe():
+                azure.connect()
+                print('create service connection point in samba for hybrid join')
+                if not dry_run:
+                    smb.write_service_connection_point(azure.tenant_id,config.get('common', 'azureadname'))
             
         #create all device found samba (experimental)
         for entry in smb.dict_all_device_samba:
