@@ -36,6 +36,7 @@ class AdConnect():
     def connect(self):
         if not self.az:
             self.az = AADInternals(mail=self.mailadmin,password=self.passwordadmin,proxies=self.proxiesconf)
+            self.tenant_id = self.az.tenant_id
             self.mailadmin = None
             self.passwordadmin = None
 
@@ -115,6 +116,22 @@ class SambaInfo():
         self.use_msDSConsistencyGuid_if_exist = None
         self.add_device= False
 
+    def write_service_connection_point(self,tenant_id,azureadname):
+
+        configurationdn =  str(self.samdb_loc.get_config_basedn())
+
+        ldif_data = """dn: CN=Device Registration Configuration,CN=Services,%s
+changetype: add
+objectClass: container""" % configurationdn
+        self.samdb_loc.modify_ldif(ldif_data)
+
+        ldif_data = """dn: CN=62a0ff2e-97b9-4513-943f-0d221bd30080,CN=Device Registration Configuration,CN=Services,%s
+changetype: add
+objectClass: serviceConnectionPoint
+keywords: azureADName:%s
+keywords: azureADId:%s""" % (configurationdn,azureadname,tenant_id)
+
+        self.samdb_loc.modify_ldif(ldif_data)
 
     def return_source_anchor(self,entry):
 
