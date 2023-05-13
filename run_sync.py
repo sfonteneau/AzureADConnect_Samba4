@@ -49,6 +49,7 @@ def run_sync(force=False):
 
     azure = AdConnect()
     azure.dry_run = dry_run
+    azure.sync_device = sync_device
     azure.mailadmin = config.get('common', 'mailadmin')
     azure.passwordadmin = config.get('common', 'passwordadmin')
     azure.proxiesconf = config.get('common', 'proxy')
@@ -58,6 +59,7 @@ def run_sync(force=False):
     smb.write_msDSConsistencyGuid_if_empty = config.getboolean('common', 'write_msDSConsistencyGuid_if_empty')
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
     smb.dry_run = dry_run
+    smb.add_device = sync_device
 
 
 
@@ -73,10 +75,6 @@ def run_sync(force=False):
     if not AzureObject.table_exists():
         db.create_tables([AzureObject])
 
-    if sync_device:
-        smb.add_device = True
-    else:
-        smb.add_device = False
 
     smb.generate_all_dict()
 
@@ -103,10 +101,9 @@ def run_sync(force=False):
 
         # Delete device in azure and not found in samba
         if sync_device:
-            list_device = azure.az.list_device()
-            for device in list_device:
+            for device in azure.dict_az_devices:
                 if not device in smb.dict_all_device_samba:
-                    print('Delete Device %s' % list_device[device])
+                    print('Delete Device %s' % azure.dict_az_devices[device])
                     azure.delete_device(device)
                     if not dry_run:
                         AzureObject.delete().where(AzureObject.sourceanchor==device,AzureObject.object_type=='Device')

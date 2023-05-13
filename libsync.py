@@ -28,10 +28,12 @@ class AdConnect():
         self.proxiesconf = None
 
         self.dry_run=True
+        self.sync_device=False
 
         self.az = None
         self.dict_az_user={}
         self.dict_az_group={}
+        self.dict_az_devices={}
 
     def connect(self):
         if not self.az:
@@ -84,6 +86,15 @@ class AdConnect():
             if not group.get('immutable_id'):
                 continue
             self.dict_az_group[group["immutable_id"]] = group
+
+        self.dict_az_devices = {}
+        if self.sync_device:
+            for device in self.az.get_devices():
+                if not device['dirSyncEnabled']:
+                    continue
+                if not device.get('immutable_id'):
+                    continue
+                self.sync_device[device["immutable_id"]] = device
 
     def send_hashnt(self,hashnt,sourceanchor):
         self.connect()
