@@ -103,9 +103,10 @@ def run_sync(force=False):
 
         # Delete device in azure and not found in samba
         if sync_device:
-            for device in azure.az.list_device():
+            list_device = azure.az.list_device()
+            for device in list_device:
                 if not device in smb.dict_all_device_samba:
-                    print('Delete Device %s' % azure.dict_all_device_samba[device])
+                    print('Delete Device %s' % list_device[device])
                     azure.delete_device(device)
                     if not dry_run:
                         AzureObject.delete().where(AzureObject.sourceanchor==device,AzureObject.object_type=='Device')
