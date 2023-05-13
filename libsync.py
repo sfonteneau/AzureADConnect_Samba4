@@ -63,6 +63,10 @@ class AdConnect():
         if not self.dry_run:
             self.az.remove_azureadoject(sourceanchor=entry,objecttype='Group')
 
+    def delete_device(self,entry):
+        if not self.dry_run:
+            self.az.remove_azureadoject(sourceanchor=entry,objecttype='Device')            
+
     def generate_all_dict(self):
         self.connect()
         self.dict_az_user = {}

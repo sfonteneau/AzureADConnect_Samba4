@@ -101,6 +101,15 @@ def run_sync(force=False):
                 if not dry_run:
                     AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type=='group')
 
+        # Delete device in azure and not found in samba
+        if sync_device:
+            for device in azure.az.list_device():
+                if not device in smb.dict_all_device_samba:
+                    print('Delete Device %s' % azure.dict_all_device_samba[device])
+                    azure.delete_device(device)
+                    if not dry_run:
+                        AzureObject.delete().where(AzureObject.sourceanchor==device,AzureObject.object_type=='Device')
+
     #create all user found samba
     for entry in smb.dict_all_users_samba:
         last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='user').first()
