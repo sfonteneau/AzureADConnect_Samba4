@@ -94,7 +94,7 @@ class AdConnect():
                     continue
                 if not device.get('immutable_id'):
                     continue
-                self.sync_device[device["immutable_id"]] = device
+                self.dict_az_devices[device["immutable_id"]] = device
 
     def send_hashnt(self,hashnt,sourceanchor):
         self.connect()
