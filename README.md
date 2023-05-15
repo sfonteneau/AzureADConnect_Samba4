@@ -24,13 +24,15 @@ The script sends all users and groups a first time and then only sends what has 
 Warning
 ========
 
-The script does not support 2FA authentication for the "mailadmin" account indicated in the conf file
+* Please note that this project uses Microsoft APIs not officially documented. Microsoft may break compatibility at any time
 
-userPrincipalName is used for the email address
+* The script does not support 2FA authentication for the "mailadmin" account indicated in the conf file
 
-"password writeback" not supported
+* userPrincipalName is used for the email address
 
-User and group management only (device optional)
+* "password writeback" not supported
+
+* User and group management only (device optional)
 
 
 sourceanchor
