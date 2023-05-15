@@ -36,7 +36,7 @@ Warning
 
 
 sourceanchor
-***************
+=============
 
 The default sourceanchor in azure.conf.exemple is the objectGUID with msDSConsistencyGuid! read : https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#using-ms-ds-consistencyguid-as-sourceanchor
 
