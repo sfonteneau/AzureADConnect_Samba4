@@ -109,7 +109,7 @@ class AdConnect():
 
 class SambaInfo():
 
-    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid",basedn=None):
+    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None):
 
         parser = optparse.OptionParser(smbconf)
         sambaopts = options.SambaOptions(parser)
@@ -117,6 +117,8 @@ class SambaInfo():
         # SAMDB
         lp = sambaopts.get_loadparm()
         self.domaine = sambaopts._lp.get('realm').lower()
+
+        self.alternate_login_id_attr = alternate_login_id_attr
 
         creds = Credentials()
         creds.guess(lp)
@@ -234,7 +236,7 @@ ms-DS-ConsistencyGuid:: %s
             data = {
                        "SourceAnchor"               : SourceAnchor,
                        "accountEnabled"             : enabled,
-                       "userPrincipalName"          : user.get("userPrincipalName",[b''])[0].decode('utf-8'),
+                       "userPrincipalName"          : user.get(self.alternate_login_id_attr,[b''])[0].decode('utf-8'),
                        "onPremisesSamAccountName"   : user.get("sAMAccountName",[b''])[0].decode('utf-8'),
                        "onPremisesDistinguishedName": str(user["dn"]),
                        "dnsDomainName"              : self.domaine,

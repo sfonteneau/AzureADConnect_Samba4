@@ -1,5 +1,8 @@
 # Changelog
 
+## [2023-06-14]
+- basedn option Add in azure.conf (for search in specific basedn in samba)
+- alternate_login_id_attr option Add  in azure.conf (to set alternate attribute for login id (https://learn.microsoft.com/en-us/azure/active-directory/hybrid/connect/plan-connect-userprincipalname#alternate-login-id) for mapping on mail 
 
 ## [2023-05-13]
 - Support for writing "CN=62a0ff2e-97b9-4513-943f-0d221bd30080,CN=Device Registration Configuration" in samba4

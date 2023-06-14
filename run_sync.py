@@ -58,7 +58,13 @@ def run_sync(force=False):
     if config.has_option('common', 'basedn'):
         basedn = config.get('common', 'basedn')
 
-    smb = SambaInfo(SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'),basedn=basedn)
+    #https://learn.microsoft.com/en-us/azure/active-directory/hybrid/connect/plan-connect-userprincipalname#alternate-login-id
+    alternate_login_id_attr = "userPrincipalName"
+    if config.has_option('common', 'alternate_login_id_attr'):
+            alternate_login_id_attr = config.get('common', 'alternate_login_id_attr')
+
+
+    smb = SambaInfo(SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'),basedn=basedn,alternate_login_id_attr=alternate_login_id_attr)
 
     smb.write_msDSConsistencyGuid_if_empty = config.getboolean('common', 'write_msDSConsistencyGuid_if_empty')
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
