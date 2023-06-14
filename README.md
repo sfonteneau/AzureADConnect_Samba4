@@ -49,7 +49,8 @@ The default sourceanchor in azure.conf.exemple is the objectGUID with msDSConsis
 
 You can run the script on a previous installation but you have to pay attention to the previous configuration of your azure ad connect (sourceanchor)
 
-If "sourceanchor" changes, it will initiate object deletions and then object recreations. You must therefore choose your sourceanchor well and not change it
+> **Warning**
+> If "sourceanchor" changes, it will initiate object deletions and then object recreations. You must therefore choose your sourceanchor well and not change it
 
 A dry_run mode allows you to run the script without making any changes
 
