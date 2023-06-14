@@ -111,7 +111,7 @@ class AdConnect():
 
 class SambaInfo():
 
-    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid"):
+    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid",basedn=None):
 
         parser = optparse.OptionParser(smbconf)
         sambaopts = options.SambaOptions(parser)
@@ -126,6 +126,10 @@ class SambaInfo():
         self.samdb_loc = SamDB(session_info=system_session(),credentials=creds, lp=lp)
         self.testpawd = GetPasswordCommand()
         self.testpawd.lp = lp
+
+        self.basedn = self.samdb_loc.get_default_basedn()
+        if basedn:
+            self.basedn = basedn
 
         self.dict_all_users_samba={}
         self.dict_all_device_samba={}
@@ -207,13 +211,13 @@ ms-DS-ConsistencyGuid:: %s
         self.all_dn={}
         self.dict_id_hash = {}
         # Search all users
-        for user in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(&(objectClass=user)(!(objectClass=computer)))"):
+        for user in self.samdb_loc.search(base=self.basedn, expression=r"(&(objectClass=user)(!(objectClass=computer)))"):
 
             Random.atfork()
 
             # Update if password different in dict mail pwdlastset
             passwordattr = 'unicodePwd'
-            password = self.testpawd.get_account_attributes(self.samdb_loc,None,self.samdb_loc.get_default_basedn(),filter="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr],decrypt=False)
+            password = self.testpawd.get_account_attributes(self.samdb_loc,None,self.basedn,filter="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr],decrypt=False)
             if not passwordattr in password:
                 continue
 
@@ -265,7 +269,7 @@ ms-DS-ConsistencyGuid:: %s
         if self.add_device:
             self.dict_all_device_samba={}
 
-            for device in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=computer)"):
+            for device in self.samdb_loc.search(base=self.basedn, expression=r"(objectClass=computer)"):
 
                 SourceAnchor = self.return_source_anchor(device)
                 if not SourceAnchor:
@@ -291,7 +295,7 @@ ms-DS-ConsistencyGuid:: %s
 
 
         self.dict_all_group_samba = {}
-        for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
+        for group in self.samdb_loc.search(base=self.basedn, expression=r"(objectClass=group)"):
 
             SourceAnchor = self.return_source_anchor(group)
             if not SourceAnchor:
@@ -312,7 +316,7 @@ ms-DS-ConsistencyGuid:: %s
             self.dict_all_group_samba[SourceAnchor] = data
 
 
-        for group in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(), expression=r"(objectClass=group)"):
+        for group in self.samdb_loc.search(base=self.basedn, expression=r"(objectClass=group)"):
 
             SourceAnchor = self.return_source_anchor(group)
             if not SourceAnchor:

@@ -54,7 +54,11 @@ def run_sync(force=False):
     azure.passwordadmin = config.get('common', 'passwordadmin')
     azure.proxiesconf = config.get('common', 'proxy')
 
-    smb = SambaInfo(SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'))
+    basedn = None
+    if config.has_option('common', 'basedn'):
+        basedn = config.get('common', 'basedn')
+
+    smb = SambaInfo(SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'),basedn=basedn)
 
     smb.write_msDSConsistencyGuid_if_empty = config.getboolean('common', 'write_msDSConsistencyGuid_if_empty')
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
