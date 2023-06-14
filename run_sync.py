@@ -73,8 +73,9 @@ def run_sync(force=False):
         azure.enable_ad_sync()
 
         # enable password hash sync
-        print('enable password hash sync')
-        azure.enable_password_hash_sync()
+        if hash_synchronization :
+            print('enable password hash sync')
+            azure.enable_password_hash_sync()
 
     if not AzureObject.table_exists():
         db.create_tables([AzureObject])
