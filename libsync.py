@@ -44,13 +44,11 @@ class AdConnect():
 
     def enable_ad_sync(self):
         self.connect()
-        if not self.dry_run:
-            self.az.set_adsyncenabled(enabledirsync=True)
+        self.az.set_adsyncenabled(enabledirsync=True)
 
     def enable_password_hash_sync(self):
         self.connect()
-        if not self.dry_run:
-            self.az.set_sync_features(enable_features=['PasswordHashSync'])
+        self.az.set_sync_features(enable_features=['PasswordHashSync'])
 
     def send_obj_to_az(self,entry):
         self.connect()
