@@ -71,9 +71,10 @@ def run_sync(force=False):
     smb.dry_run = dry_run
     smb.add_device = sync_device
 
-
-
     if not AzureObject.table_exists():
+        db.create_tables([AzureObject])
+
+    if AzureObject.select(AzureObject.sourceanchor).first() == None :
         # enable ad sync
         print('enable ad sync')
         azure.enable_ad_sync()
@@ -82,10 +83,6 @@ def run_sync(force=False):
         if hash_synchronization :
             print('enable password hash sync')
             azure.enable_password_hash_sync()
-
-    if not AzureObject.table_exists():
-        db.create_tables([AzureObject])
-
 
     smb.generate_all_dict()
 

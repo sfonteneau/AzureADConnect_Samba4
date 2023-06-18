@@ -94,7 +94,15 @@ class AdConnect():
 
         self.dict_az_devices = {}
         if self.sync_device:
-            for device in self.az.get_devices():
+            try:
+                all_device = self.az.get_devices()
+            except Exception as e:
+                if 'Identity synchronization is not yet activated for this company' in str(e):
+                    all_device = []
+                else:
+                    raise
+                
+            for device in all_device:
                 if not device['dirSyncEnabled']:
                     continue
                 if not device.get('immutable_id'):
