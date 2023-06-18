@@ -100,8 +100,8 @@ def run_sync(force=False):
 
 
         # Delete group in azure and not found in samba
-        for g in AzureObject.select(AzureObject.sourceanchor).where(AzureObject.object_type=='group'):
-            azure.dict_az_group[g.sourceanchor] = None
+        #for g in AzureObject.select(AzureObject.sourceanchor).where(AzureObject.object_type=='group'):
+        #    azure.dict_az_group[g.sourceanchor] = None
 
         for group in azure.dict_az_group:
             if not group in smb.dict_all_group_samba:
@@ -113,8 +113,8 @@ def run_sync(force=False):
         # Delete device in azure and not found in samba
         if sync_device:
 
-            for d in AzureObject.select(AzureObject.sourceanchor).where(AzureObject.object_type=='device'):
-                azure.dict_az_devices[d.sourceanchor] = None
+            #for d in AzureObject.select(AzureObject.sourceanchor).where(AzureObject.object_type=='device'):
+            #    azure.dict_az_devices[d.sourceanchor] = None
 
             for device in azure.dict_az_devices:
                 if not device in smb.dict_all_device_samba:
