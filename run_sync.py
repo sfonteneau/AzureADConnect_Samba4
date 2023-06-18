@@ -103,34 +103,34 @@ def run_sync(force=False):
                 print('Delete user %s' % azure.dict_az_user[user])
                 azure.delete_user(user)
                 if not dry_run:
-                    AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type=='user')
+                    AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type=='user').execute()
 
 
         # Delete group in azure and not found in samba
         if not use_get_syncobjects:
-            for g in AzureObject.select(AzureObject.sourceanchor).where(AzureObject.object_type=='group'):
-                azure.dict_az_group[g.sourceanchor] = None
+            for g in AzureObject.select(AzureObject.sourceanchor,AzureObject.last_data_send).where(AzureObject.object_type=='group'):
+                azure.dict_az_group[g.sourceanchor] = g.last_data_send
 
         for group in azure.dict_az_group:
             if not group in smb.dict_all_group_samba:
                 print('Delete group %s' % azure.dict_az_group[group])
                 azure.delete_group(group)
                 if not dry_run:
-                    AzureObject.delete().where(AzureObject.sourceanchor==group,AzureObject.object_type=='group')
+                    AzureObject.delete().where(AzureObject.sourceanchor==group,AzureObject.object_type=='group').execute()
 
         # Delete device in azure and not found in samba
         if sync_device:
 
             if not use_get_syncobjects:
-                for d in AzureObject.select(AzureObject.sourceanchor).where(AzureObject.object_type=='device'):
-                    azure.dict_az_devices[d.sourceanchor] = None
+                for d in AzureObject.select(AzureObject.sourceanchor,AzureObject.last_data_send).where(AzureObject.object_type=='device'):
+                    azure.dict_az_devices[d.sourceanchor] = g.last_data_send
 
             for device in azure.dict_az_devices:
                 if not device in smb.dict_all_device_samba:
                     print('Delete Device %s' % azure.dict_az_devices[device])
                     azure.delete_device(device)
                     if not dry_run:
-                        AzureObject.delete().where(AzureObject.sourceanchor==device,AzureObject.object_type=='device')
+                        AzureObject.delete().where(AzureObject.sourceanchor==device,AzureObject.object_type=='device').execute()
 
     #create all user found samba
     for entry in smb.dict_all_users_samba:
