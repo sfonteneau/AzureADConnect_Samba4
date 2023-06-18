@@ -116,7 +116,7 @@ def run_sync(force=False):
                 print('Delete group %s' % azure.dict_az_group[group])
                 azure.delete_group(group)
                 if not dry_run:
-                    AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type=='group')
+                    AzureObject.delete().where(AzureObject.sourceanchor==group,AzureObject.object_type=='group')
 
         # Delete device in azure and not found in samba
         if sync_device:
