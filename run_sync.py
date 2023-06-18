@@ -101,7 +101,7 @@ def run_sync(force=False):
 
         # Delete group in azure and not found in samba
         for g in AzureObject.select(AzureObject.sourceanchor).where(AzureObject.object_type=='group'):
-            azure.dict_az_group[g.sourceanchor]] = None
+            azure.dict_az_group[g.sourceanchor] = None
 
         for group in azure.dict_az_group:
             if not group in smb.dict_all_group_samba:
