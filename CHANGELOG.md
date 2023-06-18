@@ -1,5 +1,8 @@
 # Changelog
 
+## [2023-06-18]
+- add use_get_syncobjects in azure.conf by default = True (allows not to use the history of shipments given by microsoft but rather to rely on the local database to find the sourceanchoor. less reliable but useful if get_syncobjects fails. It would be so much easier if Microsoft gave the source anchor for groups and devices and not just users...)
+
 ## [2023-06-14]
 - basedn option Add in azure.conf (for search in specific basedn in samba)
 - alternate_login_id_attr option Add  in azure.conf (to set alternate attribute for login id (https://learn.microsoft.com/en-us/azure/active-directory/hybrid/connect/plan-connect-userprincipalname#alternate-login-id) for mapping on mail 

@@ -29,6 +29,7 @@ class AdConnect():
 
         self.dry_run=True
         self.sync_device=False
+        use_get_syncobjects = True
 
         self.az = None
         self.dict_az_user={}
@@ -70,6 +71,9 @@ class AdConnect():
     def generate_all_dict(self):
         self.connect()
         self.dict_az_user = {}
+        self.dict_az_group = {}
+        self.dict_az_devices = {}
+
         for user in self.az.list_users():
             if not user['dirSyncEnabled']:
                 continue
@@ -77,7 +81,9 @@ class AdConnect():
                 continue
             self.dict_az_user[user["immutable_id"]] = user
 
-        self.dict_az_group = {}
+        if not self.use_get_syncobjects:
+            return
+
         try:
             list_groups = self.az.list_groups()
         except Exception as e:
@@ -92,7 +98,7 @@ class AdConnect():
                 continue
             self.dict_az_group[group["immutable_id"]] = group
 
-        self.dict_az_devices = {}
+
         if self.sync_device:
             try:
                 all_device = self.az.get_devices()
