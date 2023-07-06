@@ -32,8 +32,6 @@ Warning
 
 * Please note that this project uses Microsoft APIs not officially documented. Microsoft may break compatibility at any time
 
-* The script does not support 2FA authentication for the "mailadmin" account indicated in the conf file
-
 * userPrincipalName is used for the email address (add alternate_login_id_attr=mail in azure.conf to use the mail attribute instead of the userPrincipalName attribute ) [1]
 
 * "password writeback" not supported

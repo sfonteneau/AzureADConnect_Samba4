@@ -1,8 +1,7 @@
 [common]
 
 azureadname = domain.com
-mailadmin = exemple@domain.com
-passwordadmin = password
+tenant_id = 00000000-0000-0000-0000-000000000000
 proxy =
 
 ;remove accounts with a "sourceanchor" online and not found in samba

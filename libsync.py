@@ -27,6 +27,11 @@ class AdConnect():
         self.passwordadmin = None
         self.proxiesconf = None
 
+        self.tenant_id= None
+        self.save_to_cache=True
+        self.use_cache = True
+        self.cache_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),'last_token.json')
+
         self.dry_run=True
         self.sync_device=False
         use_get_syncobjects = True
@@ -38,7 +43,14 @@ class AdConnect():
 
     def connect(self):
         if not self.az:
-            self.az = AADInternals(mail=self.mailadmin,password=self.passwordadmin,proxies=self.proxiesconf)
+            self.az = AADInternals(mail=self.mailadmin,
+                                   password=self.passwordadmin,
+                                   proxies=self.proxiesconf,
+                                   use_cache=self.use_cache,
+                                   save_to_cache=self.save_to_cache,
+                                   tenant_id=self.tenant_id,
+                                   cache_file=self.cache_file)
+                                   
             self.tenant_id = self.az.tenant_id
             self.mailadmin = None
             self.passwordadmin = None

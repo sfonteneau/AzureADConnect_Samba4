@@ -1,5 +1,11 @@
 # Changelog
 
+## [2023-07-06]
+- Multi-factor authentication support. 
+  Use the old token to regenerate a new token. The tenant id is now required in conf file
+  For the first run an external authentication and a copy paste will be necessary
+- New available option in conf file : tenant_id, save_to_cache, use_cache , credential_cache_file
+
 ## [2023-06-18]
 - add use_get_syncobjects in azure.conf by default = True (allows not to use the history of shipments given by microsoft but rather to rely on the local database to find the sourceanchoor. less reliable but useful if get_syncobjects fails. It would be so much easier if Microsoft gave the source anchor for groups and devices and not just users...)
 

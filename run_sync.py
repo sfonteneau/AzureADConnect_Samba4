@@ -50,9 +50,25 @@ def run_sync(force=False):
     azure = AdConnect()
     azure.dry_run = dry_run
     azure.sync_device = sync_device
-    azure.mailadmin = config.get('common', 'mailadmin')
-    azure.passwordadmin = config.get('common', 'passwordadmin')
     azure.proxiesconf = config.get('common', 'proxy')
+
+    if config.has_option('common', 'tenant_id'):
+        azure.tenant_id = config.get('common', 'tenant_id')
+
+    if config.has_option('common', 'mailadmin'):
+        azure.mailadmin = config.get('common', 'mailadmin')    
+
+    if config.has_option('common', 'passwordadmin'):
+        azure.passwordadmin = config.get('common', 'passwordadmin')
+
+    if config.has_option('common', 'save_to_cache'):
+        azure.save_to_cache = config.getboolean('common', 'save_to_cache')
+
+    if config.has_option('common', 'use_cache'):
+        azure.use_cache = config.getboolean('common', 'use_cache')  
+
+    if config.has_option('common', 'credential_cache_file'):
+        azure.cache_file = config.get('common', 'credential_cache_file')        
 
     basedn = None
     if config.has_option('common', 'basedn'):
