@@ -82,6 +82,9 @@ def run_sync(force=False):
 
     azure.use_get_syncobjects = use_get_syncobjects
 
+    if azure.use_cache:
+        azure.connect()
+
     alternate_login_id_attr = "userPrincipalName"
     if config.has_option('common', 'alternate_login_id_attr'):
             alternate_login_id_attr = config.get('common', 'alternate_login_id_attr')
