@@ -2,6 +2,8 @@
 
 azureadname = domain.com
 tenant_id = 00000000-0000-0000-0000-000000000000
+credential_cache_file = /root/last_token_azuread.json
+
 proxy =
 
 ;remove accounts with a "sourceanchor" online and not found in samba
