@@ -2,19 +2,27 @@ Install notes
 ==============
 
 ```
-apt-get install python3-pip git
+apt-get install git
 cd /tmp
 git clone https://github.com/sfonteneau/AzureADConnect_Samba4.git
 mv AzureADConnect_Samba4 /opt/sync-azure
 cd /opt/sync-azure/
-pip3 install -r requirements.txt
 git submodule update --progress --init -- "AADInternals_python"
 cd /opt/sync-azure/AADInternals_python
-pip3 install -r requirements.txt
 git submodule update --progress --init -- "python_wcfbin"
 mkdir /etc/azureconf/
 cd /opt/sync-azure
 cp -f azure.conf.exemple /etc/azureconf/azure.conf
+apt-get install python3-pycryptodome python3-peewee python3-passlib python3-xmltodict python3-requests python3-azure -y
+```
+
+
+If you are not under debian or if you do not have the packages available :
+
+```
+apt-get install python3-pip
+pip3 install -r /opt/sync-azure/requirements.txt
+pip3 install -r /opt/sync-azure/AADInternals_python/requirements.txt
 ```
 
  - Configure /etc/azureconf/azure.conf

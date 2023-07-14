@@ -11,7 +11,12 @@ from samba.param import LoadParm
 from samba.samdb import SamDB
 from samba.netcmd.user import GetPasswordCommand
 from AADInternals_python.AADInternals import AADInternals
-from Crypto import Random
+
+try:
+    from Cryptodome import Random
+except:
+    from Crypto import Random
+
 from samba.dsdb import UF_ACCOUNTDISABLE
 
 import optparse
