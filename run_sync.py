@@ -6,6 +6,7 @@ import pickle
 import hashlib
 import time
 import configparser
+import traceback
 from peewee import SqliteDatabase,CharField,Model,TextField,DateTimeField
 
 if "__file__" in locals():
@@ -247,6 +248,10 @@ def run_sync(force=False):
                     AzureObject.update(last_sha256_hashnt_send = sha2password,last_send_hashnt_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
 if __name__ == '__main__':
-    run_sync(force=False)
+    try:
+        run_sync(force=False)
+    except:
+        write_log_json_data("error",traceback.format_exc())
+        raise
 
 db.close()
