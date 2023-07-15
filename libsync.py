@@ -29,7 +29,6 @@ logging.getLogger("adal-python").setLevel(logging.WARN)
 logger = logging.getLogger()
 handler = logging.StreamHandler()
 logger.addHandler(handler)
-logger.setLevel(logging.INFO)
 
 def write_log_json_data(action,data):
     logger.info(json.dumps({'type':action,'timestamp': str(datetime.datetime.utcnow()),'data':data}))
