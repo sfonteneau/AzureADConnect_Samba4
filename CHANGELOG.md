@@ -1,5 +1,8 @@
 # Changelog
 
+## [2023-07-15]
+- Improved logs, The output is now in json and out in /var/log/azure_ad_sync. customizable with "logfile" in config file. 
+
 ## [2023-07-06]
 - Multi-factor authentication support. 
   Use the old token to regenerate a new token. The tenant id is now required in conf file
