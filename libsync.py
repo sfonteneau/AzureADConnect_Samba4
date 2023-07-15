@@ -4,6 +4,7 @@ import sys
 import json
 import ldb
 import base64
+import datetime
 
 from samba.auth import system_session
 from samba.credentials import Credentials
@@ -22,6 +23,8 @@ from samba.dsdb import UF_ACCOUNTDISABLE
 import optparse
 import samba.getopt as options
 
+def write_log_json_data(action,data):
+    print(json.dumps({'type':action,'timestamp': str(datetime.datetime.utcnow()),'data':data}))
 
 class AdConnect():
 
@@ -229,7 +232,7 @@ changetype: modify
 replace: ms-DS-ConsistencyGuid
 ms-DS-ConsistencyGuid:: %s
 """ % (entry['distinguishedName'][0].decode('utf-8'), base64.b64encode(SourceAnchor).decode('utf-8'))
-                print('Set ms-DS-ConsistencyGuid=%s on %s ' % (decode_SourceAnchor,entry['distinguishedName'][0].decode('utf-8')))
+                write_log_json_data('set_ms-DS-ConsistencyGuid',{'ms-DS-ConsistencyGuid':decode_SourceAnchor,'dn':entry['distinguishedName'][0].decode('utf-8')})
                 if not self.dry_run:
                     self.samdb_loc.modify_ldif(ldif_data)
 
