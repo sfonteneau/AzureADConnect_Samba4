@@ -25,7 +25,7 @@ logfile = '/var/log/azure_ad_sync'
 synchronization_interval_service=600
 
 if config.has_option('common', 'synchronization_interval_service'):
-    logfile = config.getint('common', 'synchronization_interval_service')
+    synchronization_interval_service = config.getint('common', 'synchronization_interval_service')
 
 if config.has_option('common', 'logfile'):
     logfile = config.get('common', 'logfile')
