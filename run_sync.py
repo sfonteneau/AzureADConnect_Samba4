@@ -130,7 +130,11 @@ def run_sync(force=False):
         for user in azure.dict_az_user:
             if not user in smb.dict_all_users_samba:
                 write_log_json_data('delete',azure.dict_az_user[user])
-                azure.delete_user(user)
+                try:
+                    azure.delete_user(user)
+                except:
+                    write_log_json_data('error',{'sourceanchor':user,'action':'delete_user','traceback':traceback.format_exc()})
+                    continue
                 if not dry_run:
                     AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type=='user').execute()
 
@@ -143,7 +147,11 @@ def run_sync(force=False):
         for group in azure.dict_az_group:
             if not group in smb.dict_all_group_samba:
                 write_log_json_data('delete',azure.dict_az_group[group])
-                azure.delete_group(group)
+                try:
+                    azure.delete_group(group)
+                except:
+                    write_log_json_data('error',{'sourceanchor':group,'action':'delete_group','traceback':traceback.format_exc()})
+                    continue
                 if not dry_run:
                     AzureObject.delete().where(AzureObject.sourceanchor==group,AzureObject.object_type=='group').execute()
 
@@ -157,16 +165,27 @@ def run_sync(force=False):
             for device in azure.dict_az_devices:
                 if not device in smb.dict_all_device_samba:
                     write_log_json_data('delete',azure.dict_az_devices[device])
-                    azure.delete_device(device)
+                    try:
+                        azure.delete_device(device)
+                    except:
+                        write_log_json_data('error',{'sourceanchor':device,'action':'delete_device','traceback':traceback.format_exc()})
+                        continue
                     if not dry_run:
                         AzureObject.delete().where(AzureObject.sourceanchor==device,AzureObject.object_type=='device').execute()
+
+    dict_error={}
 
     #create all user found samba
     for entry in smb.dict_all_users_samba:
         last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='user').first()
         if force or (not last_data) or json.loads(last_data.last_data_send) != smb.dict_all_users_samba[entry] :
             write_log_json_data('send',smb.dict_all_users_samba[entry])
-            azure.send_obj_to_az(smb.dict_all_users_samba[entry])
+            try:
+                azure.send_obj_to_az(smb.dict_all_users_samba[entry])
+            except:
+                dict_error[entry]=None
+                write_log_json_data('error',{'sourceanchor':entry,'action':'send_user','traceback':traceback.format_exc()})
+                continue 
             if not dry_run:
                 if not last_data:
                     AzureObject.insert(sourceanchor=entry,object_type='user',last_data_send =json.dumps(smb.dict_all_users_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
@@ -186,7 +205,12 @@ def run_sync(force=False):
             last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='device').first()
             if force or (not last_data) or json.loads(last_data.last_data_send) != smb.dict_all_device_samba[entry] :
                 write_log_json_data('send',smb.dict_all_device_samba[entry])
-                azure.send_obj_to_az(smb.dict_all_device_samba[entry])
+                try:
+                    azure.send_obj_to_az(smb.dict_all_device_samba[entry])
+                except:
+                    dict_error[entry]=None
+                    write_log_json_data('error',{'sourceanchor':entry,'action':'send_device','traceback':traceback.format_exc()})
+                    continue
                 if not dry_run:
                     if not last_data:
                         AzureObject.insert(sourceanchor=entry,object_type='device',last_data_send =json.dumps(smb.dict_all_device_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
@@ -205,7 +229,16 @@ def run_sync(force=False):
         last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='group').first()
         if force or (not last_data) or json.loads(last_data.last_data_send) != smb.dict_all_group_samba[entry] :
             write_log_json_data('send',smb.dict_all_group_samba[entry])
-            azure.send_obj_to_az(smb.dict_all_group_samba[entry])
+            try:
+                azure.send_obj_to_az(smb.dict_all_group_samba[entry])
+            except:
+                dict_error[entry]=None
+                write_log_json_data('error',{'sourceanchor':entry,'action':'send_group','traceback':traceback.format_exc()})
+                continue
+
+            if [g for g in smb.dict_all_group_samba[entry]['groupMembers'] if g in dict_error]:
+                continue
+
             if not dry_run:
                 if not last_data:
                     AzureObject.insert(sourceanchor=entry,object_type='group',last_data_send =json.dumps(smb.dict_all_group_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
@@ -220,7 +253,11 @@ def run_sync(force=False):
         print('New group with nested detected wait 30s')
         time.sleep(30)
         for entry in list_nested_group:
-            azure.send_obj_to_az(smb.dict_all_group_samba[entry])
+            try:
+                azure.send_obj_to_az(smb.dict_all_group_samba[entry])
+            except:
+                write_log_json_data('error',{'sourceanchor':entry,'action':'send_group','traceback':traceback.format_exc()})
+                continue
 
 
 
@@ -240,9 +277,15 @@ def run_sync(force=False):
                     if "Result" in str(e):
                         print('Fail, we may be a little too fast for microsoft, we will wait and try again ...' )
                         time.sleep(30)
-                        azure.send_hashnt(smb.dict_id_hash[entry],entry)
+                        try:
+                            azure.send_hashnt(smb.dict_id_hash[entry],entry)
+                        except:
+                            write_log_json_data('error',{'sourceanchor':entry,'action':'send_hashnt','traceback':traceback.format_exc()})
+                            continue
+
                     else:
-                        raise
+                        write_log_json_data('error',{'sourceanchor':entry,'action':'send_hashnt','traceback':traceback.format_exc()})
+                        continue
 
                 if not dry_run:
                     AzureObject.update(last_sha256_hashnt_send = sha2password,last_send_hashnt_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
