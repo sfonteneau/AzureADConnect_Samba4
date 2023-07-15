@@ -22,12 +22,18 @@ db = SqliteDatabase(config.get('common', 'dbpath'))
 
 logfile = '/var/log/azure_ad_sync'
 
+synchronization_interval_service=600
+
+if config.has_option('common', 'synchronization_interval_service'):
+    logfile = config.getint('common', 'synchronization_interval_service')
+
 if config.has_option('common', 'logfile'):
     logfile = config.get('common', 'logfile')
 
 if not config.getboolean('common', 'dry_run'):
-    fhandler = logging.FileHandler(logfile)
-    logger.addHandler(fhandler)
+    if logfile:
+        fhandler = logging.FileHandler(logfile)
+        logger.addHandler(fhandler)
 
 class AzureObject(Model):
     sourceanchor = CharField(primary_key=True, index=True)
@@ -291,10 +297,15 @@ def run_sync(force=False):
                     AzureObject.update(last_sha256_hashnt_send = sha2password,last_send_hashnt_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
 if __name__ == '__main__':
-    try:
-        run_sync(force=False)
-    except:
-        write_log_json_data("error",traceback.format_exc())
-        raise
+    while True:
+        try:
+            run_sync(force=False)
+        except:
+            write_log_json_data("error",traceback.format_exc())
+            if not "--service-mode" in sys.argv:
+                raise
+        if not "--service-mode" in sys.argv:
+            break
+        time.sleep(synchronization_interval_service)
 
 db.close()

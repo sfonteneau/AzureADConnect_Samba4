@@ -2,6 +2,8 @@
 
 ## [2023-07-15]
 - Improved logs, The output is now in json and out in /var/log/azure_ad_sync. customizable with "logfile" in config file. 
+- Errors are now non-blocking but logged
+- You can now run the script in service mode with "--service-mode" arg (for use with systemd). In this mode the synchronization interval is 600 seconds. You can change this value with "synchronization_interval_service" in the conf file.
 
 ## [2023-07-06]
 - Multi-factor authentication support. 
