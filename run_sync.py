@@ -11,13 +11,22 @@ from peewee import SqliteDatabase,CharField,Model,TextField,DateTimeField
 if "__file__" in locals():
     sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
-from libsync import AdConnect,SambaInfo,write_log_json_data
+from libsync import AdConnect,SambaInfo,write_log_json_data,logger,logging
 
 azureconf='/etc/azureconf/azure.conf'
 config = configparser.ConfigParser()
 config.read(azureconf)
 
 db = SqliteDatabase(config.get('common', 'dbpath'))
+
+logfile = '/var/log/azure_ad_sync'
+
+if config.has_option('common', 'logfile'):
+    logfile = config.get('common', 'logfile')
+
+if not config.getboolean('common', 'dry_run'):
+    fhandler = logging.FileHandler(logfile)
+    logger.addHandler(fhandler)
 
 class AzureObject(Model):
     sourceanchor = CharField(primary_key=True, index=True)

@@ -5,6 +5,7 @@ import json
 import ldb
 import base64
 import datetime
+import logging
 
 from samba.auth import system_session
 from samba.credentials import Credentials
@@ -23,8 +24,15 @@ from samba.dsdb import UF_ACCOUNTDISABLE
 import optparse
 import samba.getopt as options
 
+logging.getLogger("adal-python").setLevel(logging.WARN)
+
+logger = logging.getLogger()
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
 def write_log_json_data(action,data):
-    print(json.dumps({'type':action,'timestamp': str(datetime.datetime.utcnow()),'data':data}))
+    logger.info(json.dumps({'type':action,'timestamp': str(datetime.datetime.utcnow()),'data':data}))
 
 class AdConnect():
 
