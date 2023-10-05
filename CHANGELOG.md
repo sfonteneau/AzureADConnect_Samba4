@@ -2,6 +2,7 @@
 
 ## [2023-10-05]
 - Config "basedn_user", "basedn_group", "basedn_computer" add in azure.conf, if not defined the value equal to basedn. Allows you to finely define the organizational unit for each type of object.
+- Improvement of "--service-mode" to avoid querying the Microsoft APIs too often, we now base ourselves on the local db after the first launch. Default interval now = 60s
 
 ## [2023-07-15]
 - Improved logs, The output is now in json and out in /var/log/azure_ad_sync. customizable with "logfile" in config file. 
