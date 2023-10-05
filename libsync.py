@@ -148,7 +148,7 @@ class AdConnect():
 
 class SambaInfo():
 
-    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None):
+    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None):
 
         parser = optparse.OptionParser(smbconf)
         sambaopts = options.SambaOptions(parser)
@@ -169,6 +169,18 @@ class SambaInfo():
         self.basedn = self.samdb_loc.get_default_basedn()
         if basedn:
             self.basedn = basedn
+
+        self.basedn_user = self.basedn
+        if basedn_user:
+            self.basedn_user = basedn_user
+
+        self.basedn_group = self.basedn
+        if basedn_group:
+            self.basedn_group = basedn_group
+
+        self.basedn_computer = self.basedn
+        if basedn_computer:
+            self.basedn_computer = basedn_computer                                    
 
         self.dict_all_users_samba={}
         self.dict_all_device_samba={}
@@ -250,7 +262,7 @@ ms-DS-ConsistencyGuid:: %s
         self.all_dn={}
         self.dict_id_hash = {}
         # Search all users
-        for user in self.samdb_loc.search(base=self.basedn, expression=r"(&(objectClass=user)(!(objectClass=computer)))"):
+        for user in self.samdb_loc.search(base=self.basedn_user, expression=r"(&(objectClass=user)(!(objectClass=computer)))"):
 
             Random.atfork()
 
@@ -308,7 +320,7 @@ ms-DS-ConsistencyGuid:: %s
         if self.add_device:
             self.dict_all_device_samba={}
 
-            for device in self.samdb_loc.search(base=self.basedn, expression=r"(objectClass=computer)"):
+            for device in self.samdb_loc.search(base=self.basedn_computer, expression=r"(objectClass=computer)"):
 
                 SourceAnchor = self.return_source_anchor(device)
                 if not SourceAnchor:
@@ -334,7 +346,7 @@ ms-DS-ConsistencyGuid:: %s
 
 
         self.dict_all_group_samba = {}
-        for group in self.samdb_loc.search(base=self.basedn, expression=r"(objectClass=group)"):
+        for group in self.samdb_loc.search(base=self.basedn_group, expression=r"(objectClass=group)"):
 
             SourceAnchor = self.return_source_anchor(group)
             if not SourceAnchor:
@@ -355,7 +367,7 @@ ms-DS-ConsistencyGuid:: %s
             self.dict_all_group_samba[SourceAnchor] = data
 
 
-        for group in self.samdb_loc.search(base=self.basedn, expression=r"(objectClass=group)"):
+        for group in self.samdb_loc.search(base=self.basedn_group, expression=r"(objectClass=group)"):
 
             SourceAnchor = self.return_source_anchor(group)
             if not SourceAnchor:

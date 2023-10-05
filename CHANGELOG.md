@@ -1,5 +1,8 @@
 # Changelog
 
+## [2023-10-05]
+- Config "basedn_user", "basedn_group", "basedn_computer" add in azure.conf, if not defined the value equal to basedn. Allows you to finely define the organizational unit for each type of object.
+
 ## [2023-07-15]
 - Improved logs, The output is now in json and out in /var/log/azure_ad_sync. customizable with "logfile" in config file. 
 - Errors are now non-blocking but logged

@@ -90,6 +90,19 @@ def run_sync(force=False):
     if config.has_option('common', 'basedn'):
         basedn = config.get('common', 'basedn')
 
+    basedn_user = basedn
+    if config.has_option('common', 'basedn_user'):
+        basedn_user = config.get('common', 'basedn_user')
+
+    basedn_group = basedn
+    if config.has_option('common', 'basedn_group'):
+        basedn_group = config.get('common', 'basedn_group')
+
+    basedn_computer = basedn
+    if config.has_option('common', 'basedn_computer'):
+        basedn_computer = config.get('common', 'basedn_computer')
+
+
     #https://learn.microsoft.com/en-us/azure/active-directory/hybrid/connect/plan-connect-userprincipalname#alternate-login-id
 
     use_get_syncobjects = True
@@ -106,7 +119,7 @@ def run_sync(force=False):
             alternate_login_id_attr = config.get('common', 'alternate_login_id_attr')
 
 
-    smb = SambaInfo(SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'),basedn=basedn,alternate_login_id_attr=alternate_login_id_attr)
+    smb = SambaInfo(SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'),basedn=basedn,alternate_login_id_attr=alternate_login_id_attr,basedn_user=basedn_user,basedn_group=basedn_group,basedn_computer=basedn_computer)
 
     smb.write_msDSConsistencyGuid_if_empty = config.getboolean('common', 'write_msDSConsistencyGuid_if_empty')
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
