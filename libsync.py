@@ -82,14 +82,17 @@ class AdConnect():
             self.az.set_azureadobject(**entry)
 
     def delete_user(self,entry):
+        self.connect()
         if not self.dry_run:
             self.az.remove_azureadoject(sourceanchor=entry,objecttype='User')
 
     def delete_group(self,entry):
+        self.connect()
         if not self.dry_run:
             self.az.remove_azureadoject(sourceanchor=entry,objecttype='Group')
 
     def delete_device(self,entry):
+        self.connect()
         if not self.dry_run:
             self.az.remove_azureadoject(sourceanchor=entry,objecttype='Device')            
 

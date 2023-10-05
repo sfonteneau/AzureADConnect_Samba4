@@ -22,7 +22,7 @@ db = SqliteDatabase(config.get('common', 'dbpath'))
 
 logfile = '/var/log/azure_ad_sync'
 
-synchronization_interval_service=600
+synchronization_interval_service=60
 
 if config.has_option('common', 'synchronization_interval_service'):
     synchronization_interval_service = config.getint('common', 'synchronization_interval_service')
@@ -49,7 +49,7 @@ class AzureObject(Model):
 def hash_for_data(data):
     return hashlib.sha1(pickle.dumps(data)).hexdigest()
 
-def run_sync(force=False):
+def run_sync(force=False,from_db=False):
 
     global config
     global db
@@ -143,7 +143,11 @@ def run_sync(force=False):
 
     if config.getboolean('common', 'do_delete'):
         
-        azure.generate_all_dict()
+        if from_db:
+            for u in AzureObject.select(AzureObject.sourceanchor,AzureObject.last_data_send).where(AzureObject.object_type=='user'):
+                azure.dict_az_user[u.sourceanchor] = u.last_data_send
+        else:
+            azure.generate_all_dict()
 
         # Delete user in azure and not found in samba
         for user in azure.dict_az_user:
@@ -159,7 +163,7 @@ def run_sync(force=False):
 
 
         # Delete group in azure and not found in samba
-        if not use_get_syncobjects:
+        if (not use_get_syncobjects) or from_db:
             for g in AzureObject.select(AzureObject.sourceanchor,AzureObject.last_data_send).where(AzureObject.object_type=='group'):
                 azure.dict_az_group[g.sourceanchor] = g.last_data_send
 
@@ -177,7 +181,7 @@ def run_sync(force=False):
         # Delete device in azure and not found in samba
         if sync_device:
 
-            if not use_get_syncobjects:
+            if (not use_get_syncobjects) or from_db:
                 for d in AzureObject.select(AzureObject.sourceanchor,AzureObject.last_data_send).where(AzureObject.object_type=='device'):
                     azure.dict_az_devices[d.sourceanchor] = d.last_data_send
 
@@ -310,15 +314,17 @@ def run_sync(force=False):
                     AzureObject.update(last_sha256_hashnt_send = sha2password,last_send_hashnt_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
 if __name__ == '__main__':
+    first_run = True
     while True:
         try:
-            run_sync(force=False)
+            run_sync(force=False,from_db=first_run)
         except:
             write_log_json_data("error",traceback.format_exc())
             if not "--service-mode" in sys.argv:
                 raise
         if not "--service-mode" in sys.argv:
             break
+        first_run = False
         time.sleep(synchronization_interval_service)
 
 db.close()
