@@ -111,9 +111,6 @@ def run_sync(force=False,from_db=False):
 
     azure.use_get_syncobjects = use_get_syncobjects
 
-    if azure.use_cache:
-        azure.connect()
-
     alternate_login_id_attr = "userPrincipalName"
     if config.has_option('common', 'alternate_login_id_attr'):
             alternate_login_id_attr = config.get('common', 'alternate_login_id_attr')
@@ -314,17 +311,17 @@ def run_sync(force=False,from_db=False):
                     AzureObject.update(last_sha256_hashnt_send = sha2password,last_send_hashnt_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
 if __name__ == '__main__':
-    first_run = True
+    already_run = False
     while True:
         try:
-            run_sync(force=False,from_db=first_run)
+            run_sync(force=False,from_db=already_run)
         except:
             write_log_json_data("error",traceback.format_exc())
             if not "--service-mode" in sys.argv:
                 raise
         if not "--service-mode" in sys.argv:
             break
-        first_run = False
+        already_run = True
         time.sleep(synchronization_interval_service)
 
 db.close()
