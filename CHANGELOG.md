@@ -1,5 +1,8 @@
 # Changelog
 
+## [2023-10-27]
+- Fix aadinternals_python, replace aadsync_client_build "1.5.29.0" with "2.2.8.0", now "1.5.29.0" no longer works.
+
 ## [2023-10-05]
 - Config "basedn_user", "basedn_group", "basedn_computer" add in azure.conf, if not defined the value equal to basedn. Allows you to finely define the organizational unit for each type of object.
 - Improvement of "--service-mode" to avoid querying the Microsoft APIs too often, we now base ourselves on the local db after the first launch. Default interval now = 60s
