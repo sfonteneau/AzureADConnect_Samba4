@@ -66,7 +66,7 @@ def run_sync(force=False,from_db=False):
     azure = AdConnect()
     azure.dry_run = dry_run
     azure.sync_device = sync_device
-    azure.proxiesconf = config.get('common', 'proxy')
+    azure.proxiesconf = {'http':config.get('common', 'proxy'),'https':config.get('common','proxy')}
 
     if config.has_option('common', 'tenant_id'):
         azure.tenant_id = config.get('common', 'tenant_id')
