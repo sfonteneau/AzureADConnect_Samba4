@@ -265,7 +265,12 @@ ms-DS-ConsistencyGuid:: %s
         self.all_dn={}
         self.dict_id_hash = {}
         # Search all users
-        for user in self.samdb_loc.search(base=self.basedn_user, expression=r"(&(objectClass=user)(!(objectClass=computer)))"):
+
+        result_user = []
+        for bdn_user in str(self.basedn_user).split('|'):
+                result_user.extend(self.samdb_loc.search(base=bdn_user, expression=r"(&(objectClass=user)(!(objectClass=computer)))"))
+
+        for user in result_user:
 
             Random.atfork()
 
@@ -323,7 +328,11 @@ ms-DS-ConsistencyGuid:: %s
         if self.add_device:
             self.dict_all_device_samba={}
 
-            for device in self.samdb_loc.search(base=self.basedn_computer, expression=r"(objectClass=computer)"):
+            result_computer = []
+            for bdn_computer in str(self.basedn_computer).split('|'):
+                    result_computer.extend(self.samdb_loc.search(base=bdn_computer,  expression=r"(objectClass=computer)"))
+
+            for device in result_computer:
 
                 SourceAnchor = self.return_source_anchor(device)
                 if not SourceAnchor:
@@ -349,7 +358,13 @@ ms-DS-ConsistencyGuid:: %s
 
 
         self.dict_all_group_samba = {}
-        for group in self.samdb_loc.search(base=self.basedn_group, expression=r"(objectClass=group)"):
+
+
+        result_group = []
+        for bdn_group in str(self.basedn_group).split('|'):
+                result_group.extend(self.samdb_loc.search(base=bdn_group, expression=r"(objectClass=group)"))
+
+        for group in result_group:
 
             SourceAnchor = self.return_source_anchor(group)
             if not SourceAnchor:
@@ -369,8 +384,11 @@ ms-DS-ConsistencyGuid:: %s
             self.all_dn[str(group["dn"])]=SourceAnchor
             self.dict_all_group_samba[SourceAnchor] = data
 
+        result_group = []
+        for bdn_group in str(self.basedn_group).split('|'):
+                result_group.extend(self.samdb_loc.search(base=bdn_group, expression=r"(objectClass=group)"))
 
-        for group in self.samdb_loc.search(base=self.basedn_group, expression=r"(objectClass=group)"):
+        for group in result_group:
 
             SourceAnchor = self.return_source_anchor(group)
             if not SourceAnchor:
