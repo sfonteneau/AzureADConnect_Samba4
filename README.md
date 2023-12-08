@@ -107,6 +107,22 @@ You can specify which attribute should be used as login. Please note this must b
 alternate_login_id_attr = mail
 ```
 
+other settings
+----------------------------------------
+
+specifies where the last connection token will be stored and read:
+
+```
+credential_cache_file = /root/last_token.json
+```
+
+specifies where the db that stores the state of the last scan will be stored:
+
+```
+dbpath = /root/last_send_azuread.db
+```
+
+
 compatibility
 ================
 
