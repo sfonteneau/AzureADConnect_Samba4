@@ -105,6 +105,17 @@ def run_sync(force=False,from_db=False):
     if config.has_option('common', 'basedn_computer'):
         basedn_computer = config.get('common', 'basedn_computer')
 
+    custom_filter_user = None
+    if config.has_option('common', 'custom_filter_user'):
+        custom_filter_user = config.get('common', 'custom_filter_user')
+
+    custom_filter_group = None
+    if config.has_option('common', 'custom_filter_group'):
+        custom_filter_group = config.get('common', 'custom_filter_group')
+
+    custom_filter_computer = None
+    if config.has_option('common', 'custom_filter_computer'):
+        custom_filter_computer = config.get('common', 'custom_filter_computer')
 
     #https://learn.microsoft.com/en-us/azure/active-directory/hybrid/connect/plan-connect-userprincipalname#alternate-login-id
 
@@ -119,7 +130,7 @@ def run_sync(force=False,from_db=False):
             alternate_login_id_attr = config.get('common', 'alternate_login_id_attr')
 
 
-    smb = SambaInfo(SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'),basedn=basedn,alternate_login_id_attr=alternate_login_id_attr,basedn_user=basedn_user,basedn_group=basedn_group,basedn_computer=basedn_computer)
+    smb = SambaInfo(SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'),basedn=basedn,custom_filter_user=custom_filter_user,custom_filter_group=custom_filter_group,custom_filter_computer=custom_filter_computer,alternate_login_id_attr=alternate_login_id_attr,basedn_user=basedn_user,basedn_group=basedn_group,basedn_computer=basedn_computer)
 
     smb.write_msDSConsistencyGuid_if_empty = config.getboolean('common', 'write_msDSConsistencyGuid_if_empty')
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')

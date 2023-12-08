@@ -151,7 +151,7 @@ class AdConnect():
 
 class SambaInfo():
 
-    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None):
+    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None,custom_filter_user='',custom_filter_group='',custom_filter_computer=''):
 
         parser = optparse.OptionParser(smbconf)
         sambaopts = options.SambaOptions(parser)
@@ -183,7 +183,20 @@ class SambaInfo():
 
         self.basedn_computer = self.basedn
         if basedn_computer:
-            self.basedn_computer = basedn_computer                                    
+            self.basedn_computer = basedn_computer
+
+        self.custom_filter_computer = ''
+        if custom_filter_computer:
+            self.custom_filter_computer = custom_filter_computer
+
+        self.custom_filter_user = ''
+        if custom_filter_user:
+            self.custom_filter_user = custom_filter_user
+
+        self.custom_filter_group = ''
+        if custom_filter_group:
+            self.custom_filter_group = custom_filter_group
+
 
         self.dict_all_users_samba={}
         self.dict_all_device_samba={}
@@ -268,7 +281,7 @@ ms-DS-ConsistencyGuid:: %s
 
         result_user = []
         for bdn_user in str(self.basedn_user).split('|'):
-                result_user.extend(self.samdb_loc.search(base=bdn_user, expression=r"(&(objectClass=user)(!(objectClass=computer)))"))
+                result_user.extend(self.samdb_loc.search(base=bdn_user, expression=r"(&(objectClass=user)(!(objectClass=computer))%s)" % self.custom_filter_user))
 
         for user in result_user:
 
@@ -330,7 +343,7 @@ ms-DS-ConsistencyGuid:: %s
 
             result_computer = []
             for bdn_computer in str(self.basedn_computer).split('|'):
-                    result_computer.extend(self.samdb_loc.search(base=bdn_computer,  expression=r"(objectClass=computer)"))
+                    result_computer.extend(self.samdb_loc.search(base=bdn_computer,  expression=r"(&(objectClass=computer)%s)" % self.custom_filter_computer))
 
             for device in result_computer:
 
@@ -362,7 +375,7 @@ ms-DS-ConsistencyGuid:: %s
 
         result_group = []
         for bdn_group in str(self.basedn_group).split('|'):
-                result_group.extend(self.samdb_loc.search(base=bdn_group, expression=r"(objectClass=group)"))
+                result_group.extend(self.samdb_loc.search(base=bdn_group, expression=r"(&(objectClass=group)%s)" % self.custom_filter_group))
 
         for group in result_group:
 
@@ -386,7 +399,7 @@ ms-DS-ConsistencyGuid:: %s
 
         result_group = []
         for bdn_group in str(self.basedn_group).split('|'):
-                result_group.extend(self.samdb_loc.search(base=bdn_group, expression=r"(objectClass=group)"))
+                result_group.extend(self.samdb_loc.search(base=bdn_group, expression=r"(&(objectClass=group)%s)" % self.custom_filter_group))
 
         for group in result_group:
 
