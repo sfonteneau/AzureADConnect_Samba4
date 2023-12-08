@@ -60,6 +60,52 @@ You can run the script on a previous installation but you have to pay attention 
 
 A dry_run mode allows you to run the script without making any changes
 
+advanced configuration
+========================
+
+using specific basedn
+-----------------------------
+
+You can specify a specific basedn for search in samba:
+
+```
+basedn = OU=TEST,DC=MYDOMAIN,DC=LAN
+```
+
+OR a base dn for each type of object:
+
+```
+basedn_user     = OU=USER,DC=MYDOMAIN,DC=LAN
+basedn_group    = OU=GROUP,DC=MYDOMAIN,DC=LAN
+basedn_computer = OU=COMPUTER,DC=MYDOMAIN,DC=LAN
+```
+
+For precisely several bases dn, separate them with | 
+
+```
+basedn_user     = OU=USER,DC=MYDOMAIN,DC=LAN|OU=USER2,DC=MYDOMAIN,DC=LAN
+```
+
+custom filter for search
+-----------------------------
+
+You can specify a specific custom ldap filter for search in samba:
+
+```
+custom_filter_user     = (memberof:1.2.840.113556.1.4.1941:=CN=group_users,OU=Groupe,DC=mydomain,DC=lan)
+custom_filter_group    = (memberof:1.2.840.113556.1.4.1941:=CN=group_groups,OU=Groupe,DC=mydomain,DC=lan)
+custom_filter_computer = (memberof:1.2.840.113556.1.4.1941:=CN=group_computers,OU=Groupe,DC=mydomain,DC=lan)
+```
+
+Do not use userPrincipalName as login
+----------------------------------------
+
+You can specify which attribute should be used as login. Please note this must be an email address. Use alternate_login_id_attr
+
+
+```
+alternate_login_id_attr = mail
+```
 
 compatibility
 ================
