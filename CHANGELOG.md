@@ -1,5 +1,8 @@
 # Changelog
 
+## [2023-12-08]
+- Support multiple basedn, use "|" separator in conf file to define multiple basedn
+
 ## [2023-10-27]
 - Fix aadinternals_python, replace aadsync_client_build "1.5.29.0" with "2.2.8.0", now "1.5.29.0" no longer works.
 
