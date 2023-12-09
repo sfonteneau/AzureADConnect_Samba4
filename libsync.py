@@ -169,21 +169,35 @@ class SambaInfo():
         self.testpawd = GetPasswordCommand()
         self.testpawd.lp = lp
 
-        self.basedn = self.samdb_loc.get_default_basedn()
+        self.default_basedn = self.samdb_loc.get_default_basedn()
+        self.basedn = [str(self.default_basedn)]
+
         if basedn:
-            self.basedn = basedn
+            if type(basedn) == list :
+                self.basedn = basedn 
+            else:
+                self.basedn = [bdn.strip() for bdn in basedn.split('|')]
 
         self.basedn_user = self.basedn
         if basedn_user:
-            self.basedn_user = basedn_user
+            if type(basedn_user) == list :
+                self.basedn_user = basedn_user
+            else:
+                self.basedn_user = [bdn.strip() for bdn in basedn_user.split('|')]
 
         self.basedn_group = self.basedn
         if basedn_group:
-            self.basedn_group = basedn_group
+            if type(basedn_group) == list :
+                self.basedn_group = basedn_group
+            else:
+                self.basedn_group = [bdn.strip() for bdn in basedn_group.split('|')]
 
         self.basedn_computer = self.basedn
         if basedn_computer:
-            self.basedn_computer = basedn_computer
+            if type(basedn_computer) == list :
+                self.basedn_computer = basedn_computer
+            else:
+                self.basedn_computer = [bdn.strip() for bdn in basedn_computer.split('|')]
 
         self.custom_filter_computer = ''
         if custom_filter_computer:
@@ -280,7 +294,7 @@ ms-DS-ConsistencyGuid:: %s
         # Search all users
 
         result_user = []
-        for bdn_user in str(self.basedn_user).split('|'):
+        for bdn_user in self.basedn_user:
                 result_user.extend(self.samdb_loc.search(base=bdn_user, expression=r"(&(objectClass=user)(!(objectClass=computer))%s)" % self.custom_filter_user))
 
         for user in result_user:
@@ -289,7 +303,7 @@ ms-DS-ConsistencyGuid:: %s
 
             # Update if password different in dict mail pwdlastset
             passwordattr = 'unicodePwd'
-            password = self.testpawd.get_account_attributes(self.samdb_loc,None,self.basedn,filter="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr],decrypt=False)
+            password = self.testpawd.get_account_attributes(self.samdb_loc,None,self.default_basedn,filter="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr],decrypt=False)
             if not passwordattr in password:
                 continue
 
@@ -342,7 +356,7 @@ ms-DS-ConsistencyGuid:: %s
             self.dict_all_device_samba={}
 
             result_computer = []
-            for bdn_computer in str(self.basedn_computer).split('|'):
+            for bdn_computer in self.basedn_computer:
                     result_computer.extend(self.samdb_loc.search(base=bdn_computer,  expression=r"(&(objectClass=computer)%s)" % self.custom_filter_computer))
 
             for device in result_computer:
@@ -374,7 +388,7 @@ ms-DS-ConsistencyGuid:: %s
 
 
         result_group = []
-        for bdn_group in str(self.basedn_group).split('|'):
+        for bdn_group in self.basedn_group:
                 result_group.extend(self.samdb_loc.search(base=bdn_group, expression=r"(&(objectClass=group)%s)" % self.custom_filter_group))
 
         for group in result_group:
@@ -398,7 +412,7 @@ ms-DS-ConsistencyGuid:: %s
             self.dict_all_group_samba[SourceAnchor] = data
 
         result_group = []
-        for bdn_group in str(self.basedn_group).split('|'):
+        for bdn_group in self.basedn_group:
                 result_group.extend(self.samdb_loc.search(base=bdn_group, expression=r"(&(objectClass=group)%s)" % self.custom_filter_group))
 
         for group in result_group:
