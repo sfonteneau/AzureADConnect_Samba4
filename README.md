@@ -1,3 +1,5 @@
+If you use this script and it works correctly - please do not be lazy to put a star. This motivates me very much to develop my product. If you lack some functions, write about it. I will try to add them if they fit into the product concept.
+
 Install notes
 ==============
 
