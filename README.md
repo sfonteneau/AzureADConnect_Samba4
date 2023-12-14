@@ -127,6 +127,16 @@ specifies where the db that stores the state of the last scan will be stored:
 dbpath = /root/last_send_azuread.db
 ```
 
+Samba configuration
+---------------------------------------------
+
+You can add pathsmbconf and pathsamdb parameters in the configuration file. 
+If you are using a samba version of the distribution this should not be necessary.
+
+```
+pathsamdb   = /usr/local/samba/private/sam.ldb
+pathsmbconf = /usr/local/samba/lib/smb.conf
+```
 
 compatibility
 ================

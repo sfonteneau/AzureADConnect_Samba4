@@ -1,5 +1,8 @@
 # Changelog
 
+## [2023-12-15]
+- pathsmbconf and pathsamdb add in config file to be more flexible in the configuration
+
 ## [2023-12-08]
 - Support multiple basedn, use "|" separator in conf file to define multiple basedn
 - Add "custom_filter_user" , "custom_filter_group" , "custom_filter_computer" options. usage exemple :  custom_filter_user=(memberof:1.2.840.113556.1.4.1941:=CN=ccc,OU=Groupe,DC=mydomain,DC=lan)
