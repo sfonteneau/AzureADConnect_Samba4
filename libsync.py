@@ -151,7 +151,7 @@ class AdConnect():
 
 class SambaInfo():
 
-    def __init__(self, smbconf="/etc/samba/smb.conf",SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None,custom_filter_user='',custom_filter_group='',custom_filter_computer=''):
+    def __init__(self, smbconf="/etc/samba/smb.conf",pathsamdb='/var/lib/samba/private/sam.ldb',SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None,custom_filter_user='',custom_filter_group='',custom_filter_computer=''):
 
         parser = optparse.OptionParser(smbconf)
         sambaopts = options.SambaOptions(parser)
@@ -165,7 +165,7 @@ class SambaInfo():
         creds = Credentials()
         creds.guess(lp)
 
-        self.samdb_loc = SamDB(session_info=system_session(),credentials=creds, lp=lp)
+        self.samdb_loc = SamDB(url=pathsamdb,session_info=system_session(),credentials=creds, lp=lp)
         self.testpawd = GetPasswordCommand()
         self.testpawd.lp = lp
 
