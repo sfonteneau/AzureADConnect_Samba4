@@ -9,9 +9,9 @@ import logging
 
 from samba.auth import system_session
 from samba.credentials import Credentials
-from samba.param import LoadParm
 from samba.samdb import SamDB
 from samba.netcmd.user import GetPasswordCommand
+from samba import param
 from AADInternals_python.AADInternals import AADInternals
 
 try:
@@ -153,12 +153,10 @@ class SambaInfo():
 
     def __init__(self, smbconf="/etc/samba/smb.conf",pathsamdb='/var/lib/samba/private/sam.ldb',SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None,custom_filter_user='',custom_filter_group='',custom_filter_computer=''):
 
-        parser = optparse.OptionParser(smbconf)
-        sambaopts = options.SambaOptions(parser)
-
         # SAMDB
-        lp = sambaopts.get_loadparm()
-        self.domaine = sambaopts._lp.get('realm').lower()
+        lp = param.LoadParm()
+        lp.load(smbconf)
+        self.domaine = lp.get('realm').lower()
 
         self.alternate_login_id_attr = alternate_login_id_attr
 
