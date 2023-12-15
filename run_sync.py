@@ -44,6 +44,10 @@ if config.has_option('common', 'synchronization_interval_service'):
 if config.has_option('common', 'logfile'):
     logfile = config.get('common', 'logfile')
 
+calculate_deletions_based_on_last_sync = False
+if config.has_option('common', 'calculate_deletions_based_on_last_sync'):
+    calculate_deletions_based_on_last_sync = config.getboolean('common', 'calculate_deletions_based_on_last_sync')
+
 if not dry_run:
     if logfile:
         fhandler = logging.FileHandler(logfile)
@@ -358,17 +362,16 @@ def run_sync(force=False,from_db=False):
                     AzureObject.update(last_sha256_hashnt_send = sha2password,last_send_hashnt_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
 if __name__ == '__main__':
-    already_run = False
     while True:
         try:
-            run_sync(force=args.force,from_db=already_run)
+            run_sync(force=args.force,from_db=calculate_deletions_based_on_last_sync)
         except:
             write_log_json_data("error",traceback.format_exc())
             if not args.servicemode :
                 raise
         if not args.servicemode :
             break
-        already_run = True
+        calculate_deletions_based_on_last_sync = True
         time.sleep(synchronization_interval_service)
 
 db.close()
