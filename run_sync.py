@@ -29,11 +29,11 @@ config.read(azureconf)
 
 db = SqliteDatabase(config.get('common', 'dbpath'))
 
-dry_run = config.getboolean('common', 'dry_run')
-
 if args.dryrun != None:
     dry_run=args.dryrun
-
+else:
+    dry_run = config.getboolean('common', 'dry_run')
+    
 logfile = '/var/log/azure_ad_sync'
 
 synchronization_interval_service=60
