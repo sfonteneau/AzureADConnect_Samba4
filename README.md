@@ -115,11 +115,17 @@ alternate_login_id_attr = mail
 other settings
 ----------------------------------------
 
+* credential_cache_file :
+
+
 specifies where the last connection token will be stored and read:
 
 ```
 credential_cache_file = /root/last_token.json
 ```
+
+* dbpath :
+
 
 specifies where the db that stores the state of the last scan will be stored:
 
@@ -127,13 +133,12 @@ specifies where the db that stores the state of the last scan will be stored:
 dbpath = /root/last_send_azuread.db
 ```
 
-calculate deletions based on local last sync, does not list the users, groups and devices of the Azure AD to calculate the necessary deletion and will make the comparison with the last send of the script.
+* calculate_deletions_based_on_last_sync :
 
-Much faster mode. 
+calculate deletions based on local last sync, does not list the users, groups and devices of the Azure AD to calculate the necessary deletion and will make the comparison with the last send of the script. Much faster mode 
 
 ```
 calculate_deletions_based_on_last_sync=True
-
 ```
 
 Samba configuration
