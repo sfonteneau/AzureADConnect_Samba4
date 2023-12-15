@@ -7,6 +7,7 @@ import hashlib
 import time
 import configparser
 import traceback
+import argparse
 from peewee import SqliteDatabase,CharField,Model,TextField,DateTimeField
 
 if "__file__" in locals():
@@ -14,11 +15,24 @@ if "__file__" in locals():
 
 from libsync import AdConnect,SambaInfo,write_log_json_data,logger,logging
 
-azureconf='/etc/azureconf/azure.conf'
+parser = argparse.ArgumentParser(description='Azure ad sync')
+parser.add_argument('--conf', dest='azureconf', default='/etc/azureconf/azure.conf',help='path to conf file')
+parser.add_argument('--service-mode', action=argparse.BooleanOptionalAction,dest='servicemode',help='Run the script in service mode',default=False)
+parser.add_argument('--force', action=argparse.BooleanOptionalAction,dest='force',help='Force synchronization of all objects',default=False)
+parser.add_argument('--dryrun', action=argparse.BooleanOptionalAction,dest='dryrun',help='simulate a send but does not actually perform the actions',default=None)
+
+args = parser.parse_args()
+
+azureconf=args.azureconf
 config = configparser.ConfigParser()
 config.read(azureconf)
 
 db = SqliteDatabase(config.get('common', 'dbpath'))
+
+dry_run = config.getboolean('common', 'dry_run')
+
+if args.dryrun != None:
+    dry_run=args.dryrun
 
 logfile = '/var/log/azure_ad_sync'
 
@@ -30,7 +44,7 @@ if config.has_option('common', 'synchronization_interval_service'):
 if config.has_option('common', 'logfile'):
     logfile = config.get('common', 'logfile')
 
-if not config.getboolean('common', 'dry_run'):
+if not dry_run:
     if logfile:
         fhandler = logging.FileHandler(logfile)
         logger.addHandler(fhandler)
@@ -54,7 +68,7 @@ def run_sync(force=False,from_db=False):
     global config
     global db
 
-    dry_run = config.getboolean('common', 'dry_run')
+    global dry_run
 
     hash_synchronization = config.getboolean('common', 'hash_synchronization')
 
@@ -347,12 +361,12 @@ if __name__ == '__main__':
     already_run = False
     while True:
         try:
-            run_sync(force=False,from_db=already_run)
+            run_sync(force=args.force,from_db=already_run)
         except:
             write_log_json_data("error",traceback.format_exc())
-            if not "--service-mode" in sys.argv:
+            if not args.servicemode :
                 raise
-        if not "--service-mode" in sys.argv:
+        if not args.servicemode :
             break
         already_run = True
         time.sleep(synchronization_interval_service)
