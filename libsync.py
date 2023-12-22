@@ -441,6 +441,9 @@ ms-DS-ConsistencyGuid:: %s
             SourceAnchor = self.return_source_anchor(group)
             if not SourceAnchor:
                 continue
+        
+            if not SourceAnchor in self.dict_all_group_samba:
+                continue
 
             list_member=[]
             for m in group.get('member',[]):
