@@ -316,7 +316,6 @@ ms-DS-ConsistencyGuid:: %s
                 continue
 
 
-            self.dict_id_hash[SourceAnchor]=hashnt
             if int(user["userAccountControl"][0]) & UF_ACCOUNTDISABLE:
                 enabled = False
             else:
@@ -356,6 +355,8 @@ ms-DS-ConsistencyGuid:: %s
 
             if not data:
                 continue
+            
+            self.dict_id_hash[SourceAnchor]=hashnt
 
             self.all_dn[str(user["dn"])]=SourceAnchor
             self.dict_all_users_samba[SourceAnchor] = data
