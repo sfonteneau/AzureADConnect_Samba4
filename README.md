@@ -152,6 +152,42 @@ pathsamdb   = /usr/local/samba/private/sam.ldb
 pathsmbconf = /usr/local/samba/lib/smb.conf
 ```
 
+Use Python callback to modify the calculated result of the script
+-----------------------------------------------------------------------------
+
+Copy callback_template:
+
+```
+cp -r /opt/sync-azure/callback_template /root/callbackaad
+```
+
+add option in config file : 
+
+```
+folder_callback_python = /root/callbackaad
+```
+
+Now edit /root/callbackaad/callbackaadsync.py
+
+Exemple: 
+
+```
+def callback_user(sambaobj=None,entry=None,result=None):
+    result['company'] = "MY ENTERPRISE"
+    return result
+```
+
+In this example we force the company entry "MY ENTERPRISE" on all user entries
+
+- sambaobj is the already instantiated samdb object, it can be used to do searches
+
+- Entry is user entry returned by samdb
+
+- result is resultcalculated by the script so you can modify it
+
+The function returns the result modify, if the function returns None, the user will be skipped from the sync
+
+
 compatibility
 ================
 
