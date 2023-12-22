@@ -167,7 +167,7 @@ add option in config file :
 folder_callback_python = /root/callbackaad
 ```
 
-Now edit /root/callbackaad/callbackaadsync.py
+Now edit /root/callbackaad/callbackaadsync.py (do not change the file name)
 
 Exemple: 
 
