@@ -153,6 +153,10 @@ class SambaInfo():
 
     def __init__(self, smbconf="/etc/samba/smb.conf",pathsamdb='/var/lib/samba/private/sam.ldb',SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None,custom_filter_user='',custom_filter_group='',custom_filter_computer=''):
 
+        self.callback_user = None
+        self.callback_group = None
+        self.callback_device = None
+
         # SAMDB
         lp = param.LoadParm()
         lp.load(smbconf)
@@ -346,6 +350,10 @@ ms-DS-ConsistencyGuid:: %s
                        "proxyAddresses"             : [p.decode('utf-8') for p in user.get("proxyAddresses",[])],
                        "usertype"                   : "User"
                    }
+
+            if self.callback_user != None:
+                data = self.callback_user(sambaobj=self.samdb_loc,entry=user,result=data)
+
             self.all_dn[str(user["dn"])]=SourceAnchor
             self.dict_all_users_samba[SourceAnchor] = data
 
@@ -378,6 +386,9 @@ ms-DS-ConsistencyGuid:: %s
                             "usertype"                   : "Device"
                         }
 
+                if self.callback_device != None:
+                    data = self.callback_device(sambaobj=self.samdb_loc,entry=device,result=data)
+
                 self.all_dn[str(device["dn"])]=SourceAnchor
                 self.dict_all_device_samba[SourceAnchor] = data            
 
@@ -405,6 +416,9 @@ ms-DS-ConsistencyGuid:: %s
                            "SecurityEnabled"            : group.get("grouptype",[b''])[0].decode('utf-8') in ['-2147483644','-2147483640','-2147483646'],
                            "usertype"                   : "Group"
                        }
+
+            if self.callback_group != None:
+                data = self.callback_group(sambaobj=self.samdb_loc,entry=group,result=data)
 
             self.all_dn[str(group["dn"])]=SourceAnchor
             self.dict_all_group_samba[SourceAnchor] = data

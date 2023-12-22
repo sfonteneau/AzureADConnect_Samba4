@@ -27,6 +27,10 @@ azureconf=args.azureconf
 config = configparser.ConfigParser()
 config.read(azureconf)
 
+if config.has_option('common', 'folder_callback_python') and config.get('common', 'folder_callback_python'):
+    sys.path.append(config.get('common', 'folder_callback_python'))
+    from callbackaadsync import callback_user,callback_group,callback_device
+
 db = SqliteDatabase(config.get('common', 'dbpath'))
 
 if args.dryrun != None:
@@ -168,6 +172,10 @@ def run_sync(force=False,from_db=False):
             basedn_group=basedn_group,
             basedn_computer=basedn_computer
         )
+    if config.has_option('common', 'folder_callback_python') and config.get('common', 'folder_callback_python'):
+        smb.callback_user = callback_user
+        smb.callback_group = callback_group 
+        smb.callback_device = callback_device 
 
     smb.write_msDSConsistencyGuid_if_empty = config.getboolean('common', 'write_msDSConsistencyGuid_if_empty')
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
