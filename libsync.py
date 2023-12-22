@@ -354,6 +354,9 @@ ms-DS-ConsistencyGuid:: %s
             if self.callback_user != None:
                 data = self.callback_user(sambaobj=self.samdb_loc,entry=user,result=data)
 
+            if not data:
+                continue
+
             self.all_dn[str(user["dn"])]=SourceAnchor
             self.dict_all_users_samba[SourceAnchor] = data
 
@@ -389,6 +392,9 @@ ms-DS-ConsistencyGuid:: %s
                 if self.callback_device != None:
                     data = self.callback_device(sambaobj=self.samdb_loc,entry=device,result=data)
 
+                if not data:
+                    continue
+
                 self.all_dn[str(device["dn"])]=SourceAnchor
                 self.dict_all_device_samba[SourceAnchor] = data            
 
@@ -419,6 +425,9 @@ ms-DS-ConsistencyGuid:: %s
 
             if self.callback_group != None:
                 data = self.callback_group(sambaobj=self.samdb_loc,entry=group,result=data)
+
+            if not data:
+                continue
 
             self.all_dn[str(group["dn"])]=SourceAnchor
             self.dict_all_group_samba[SourceAnchor] = data
