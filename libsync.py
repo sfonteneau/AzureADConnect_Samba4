@@ -354,12 +354,12 @@ ms-DS-ConsistencyGuid:: %s
             if self.callback_user != None:
                 data = self.callback_user(sambaobj=self.samdb_loc,entry=user,result=data)
 
+            if not data:
+                continue
+
             if self.callback_user_hashnt != None:
                 hashnt = self.callback_user_hashnt(sambaobj=self.samdb_loc,entry=user,result=data,hashnt=hashnt)
 
-            if not data:
-                continue
-            
             self.dict_id_hash[SourceAnchor]=hashnt
 
             self.all_dn[str(user["dn"])]=SourceAnchor
