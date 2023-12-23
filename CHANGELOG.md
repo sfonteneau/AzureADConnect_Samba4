@@ -1,5 +1,8 @@
 # Changelog
 
+## [2023-12-23]
+- Python callback support, see https://github.com/sfonteneau/AzureADConnect_Samba4/blob/7115dfa9a1f7fea052e7a2d0f223536a6f93229b/README.md#use-python-callback-to-modify-the-calculated-result-of-the-script
+
 ## [2023-12-15]
 - pathsmbconf and pathsamdb add in config file to be more flexible in the configuration
 
