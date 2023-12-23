@@ -156,6 +156,7 @@ class SambaInfo():
         self.callback_user = None
         self.callback_group = None
         self.callback_device = None
+        self.callback_user_hashnt = None
 
         # SAMDB
         lp = param.LoadParm()
@@ -352,6 +353,9 @@ ms-DS-ConsistencyGuid:: %s
 
             if self.callback_user != None:
                 data = self.callback_user(sambaobj=self.samdb_loc,entry=user,result=data)
+
+            if self.callback_user_hashnt != None:
+                hashnt = self.callback_user_hashnt(sambaobj=self.samdb_loc,entry=user,result=data,hashnt=hashnt)
 
             if not data:
                 continue

@@ -29,7 +29,7 @@ config.read(azureconf)
 
 if config.has_option('common', 'folder_callback_python') and config.get('common', 'folder_callback_python'):
     sys.path.append(config.get('common', 'folder_callback_python'))
-    from callbackaadsync import callback_user,callback_group,callback_device
+    from callbackaadsync import callback_user,callback_group,callback_device,callback_user_hashnt
 
 db = SqliteDatabase(config.get('common', 'dbpath'))
 
@@ -174,6 +174,7 @@ def run_sync(force=False,from_db=False):
         )
     if config.has_option('common', 'folder_callback_python') and config.get('common', 'folder_callback_python'):
         smb.callback_user = callback_user
+        smb.callback_user_hashnt = callback_user_hashnt
         smb.callback_group = callback_group 
         smb.callback_device = callback_device 
 
