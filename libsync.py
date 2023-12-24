@@ -313,8 +313,6 @@ ms-DS-ConsistencyGuid:: %s
             hashnt = password[passwordattr][0].hex().upper()
 
             SourceAnchor = self.return_source_anchor(user)
-            if not SourceAnchor:
-                continue
 
 
             if int(user["userAccountControl"][0]) & UF_ACCOUNTDISABLE:
@@ -355,6 +353,9 @@ ms-DS-ConsistencyGuid:: %s
                 data = self.callback_user(sambaobj=self.samdb_loc,entry=user,result=data)
                 SourceAnchor = data['SourceAnchor']
 
+            if not SourceAnchor:
+                continue
+
             if not data:
                 continue
 
@@ -377,8 +378,6 @@ ms-DS-ConsistencyGuid:: %s
             for device in result_computer:
 
                 SourceAnchor = self.return_source_anchor(device)
-                if not SourceAnchor:
-                    continue
 
                 data = {
                             "SourceAnchor"               : SourceAnchor,
@@ -402,6 +401,9 @@ ms-DS-ConsistencyGuid:: %s
                 if not data:
                     continue
 
+                if not SourceAnchor:
+                    continue
+
                 self.all_dn[str(device["dn"])]=SourceAnchor
                 self.dict_all_device_samba[SourceAnchor] = data            
 
@@ -416,8 +418,6 @@ ms-DS-ConsistencyGuid:: %s
         for group in result_group:
 
             SourceAnchor = self.return_source_anchor(group)
-            if not SourceAnchor:
-                continue
 
             data = {
                            "SourceAnchor"               : SourceAnchor,
@@ -437,6 +437,9 @@ ms-DS-ConsistencyGuid:: %s
             if not data:
                 continue
 
+            if not SourceAnchor:
+                continue
+
             self.all_dn[str(group["dn"])]=SourceAnchor
             self.dict_all_group_samba[SourceAnchor] = data
 
@@ -445,7 +448,8 @@ ms-DS-ConsistencyGuid:: %s
             if not str(group["dn"]) in self.all_dn:
                 continue
 
-            SourceAnchor = self.all_dn[str(group["dn"]) ]
+            SourceAnchor = self.all_dn[str(group["dn"]) ]
+
 
             list_member=[]
             for m in group.get('member',[]):
