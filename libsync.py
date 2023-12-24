@@ -442,7 +442,7 @@ ms-DS-ConsistencyGuid:: %s
 
         for group in result_group:
 
-            SourceAnchor = self.return_source_anchor(group)
+            SourceAnchor = self.all_dn[str(group["dn"]) ]
             if not SourceAnchor:
                 continue
         
