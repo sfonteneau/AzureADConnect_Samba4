@@ -441,12 +441,12 @@ ms-DS-ConsistencyGuid:: %s
             self.dict_all_group_samba[SourceAnchor] = data
 
         for group in result_group:
+ 
+            if not str(group["dn"]) in self.all_dn:
+                continue
 
             SourceAnchor = self.all_dn[str(group["dn"]) ]
             if not SourceAnchor:
-                continue
-        
-            if not SourceAnchor in self.dict_all_group_samba:
                 continue
 
             list_member=[]
