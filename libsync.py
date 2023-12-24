@@ -445,9 +445,7 @@ ms-DS-ConsistencyGuid:: %s
             if not str(group["dn"]) in self.all_dn:
                 continue
 
-            SourceAnchor = self.all_dn[str(group["dn"]) ]
-            if not SourceAnchor:
-                continue
+            SourceAnchor = self.all_dn[str(group["dn"]) ]
 
             list_member=[]
             for m in group.get('member',[]):
