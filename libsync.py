@@ -440,10 +440,6 @@ ms-DS-ConsistencyGuid:: %s
             self.all_dn[str(group["dn"])]=SourceAnchor
             self.dict_all_group_samba[SourceAnchor] = data
 
-        result_group = []
-        for bdn_group in self.basedn_group:
-                result_group.extend(self.samdb_loc.search(base=bdn_group, expression=r"(&(objectClass=group)%s)" % self.custom_filter_group))
-
         for group in result_group:
 
             SourceAnchor = self.return_source_anchor(group)
