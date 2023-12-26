@@ -6,6 +6,7 @@ import ldb
 import base64
 import datetime
 import logging
+import copy
 
 from samba.auth import system_session
 from samba.credentials import Credentials
@@ -425,7 +426,7 @@ ms-DS-ConsistencyGuid:: %s
                            "onPremisesDistinguishedName": str(group["dn"]),
                            "dnsDomainName"              : self.domaine,
                            "displayName"                : group.get("sAMAccountName",[b''])[0].decode('utf-8'),
-                           "groupMembers"               : [],
+                           "groupMembers"               : [str(m) for m in group.get('member',[])],
                            "SecurityEnabled"            : group.get("grouptype",[b''])[0].decode('utf-8') in ['-2147483644','-2147483640','-2147483646'],
                            "usertype"                   : "Group"
                        }
@@ -443,16 +444,5 @@ ms-DS-ConsistencyGuid:: %s
             self.all_dn[str(group["dn"])]=SourceAnchor
             self.dict_all_group_samba[SourceAnchor] = data
 
-        for group in result_group:
- 
-            if not str(group["dn"]) in self.all_dn:
-                continue
-
-            SourceAnchor = self.all_dn[str(group["dn"]) ]
-
-
-            list_member=[]
-            for m in group.get('member',[]):
-                if str(m) in self.all_dn:
-                    list_member.append(self.all_dn[str(m)])
-            self.dict_all_group_samba[SourceAnchor]['groupMembers']=list_member
+        for group in self.dict_all_group_samba:
+            self.dict_all_group_samba[group]['groupMembers']=[self.all_dn[m] for m in self.dict_all_group_samba[group]['groupMembers'] if m in self.all_dn]
