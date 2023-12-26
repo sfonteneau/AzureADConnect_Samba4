@@ -6,7 +6,6 @@ import ldb
 import base64
 import datetime
 import logging
-import copy
 
 from samba.auth import system_session
 from samba.credentials import Credentials
