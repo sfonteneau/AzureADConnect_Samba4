@@ -187,6 +187,15 @@ In this example we force the company entry "MY ENTERPRISE" on all user entries
 
 The function returns the result modify, if the function returns None, the user will be skipped from the sync
 
+Use Python callback to run code after sending
+-----------------------------------------------------------------------------
+
+In certain cases we want to execute code in addition to sending it to Azure AD
+
+Exemple: Send an email, Enter something into a database, Perform additional actions in Azure AD.
+
+In this case you can use: callback_after_send_obj and callback_after_send_hashnt
+
 
 compatibility
 ================
