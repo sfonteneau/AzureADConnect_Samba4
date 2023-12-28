@@ -1,7 +1,7 @@
 # Changelog
 
 ## [2023-12-28]
-- renaming callbacks, add callback_after_send_obj and callback_after_send_hashnt
+- renaming callbacks, add callback_after_send_obj ,callback_after_send_hashnt and callback_end_synchro
 
 ## [2023-12-23]
 - Python callback support, see https://github.com/sfonteneau/AzureADConnect_Samba4/blob/7115dfa9a1f7fea052e7a2d0f223536a6f93229b/README.md#use-python-callback-to-modify-the-calculated-result-of-the-script
