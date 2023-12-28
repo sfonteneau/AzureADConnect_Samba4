@@ -153,10 +153,10 @@ class SambaInfo():
 
     def __init__(self, smbconf="/etc/samba/smb.conf",pathsamdb='/var/lib/samba/private/sam.ldb',SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None,custom_filter_user='',custom_filter_group='',custom_filter_computer=''):
 
-        self.callback_user = None
-        self.callback_group = None
-        self.callback_device = None
-        self.callback_user_hashnt = None
+        self.callback_calculated_user   = None
+        self.callback_calculated_hashnt = None
+        self.callback_calculated_group  = None
+        self.callback_calculated_device = None
 
         # SAMDB
         lp = param.LoadParm()
@@ -348,9 +348,9 @@ ms-DS-ConsistencyGuid:: %s
                        "proxyAddresses"             : [p.decode('utf-8') for p in user.get("proxyAddresses",[])],
                        "usertype"                   : "User"
                    }
-
-            if self.callback_user != None:
-                data = self.callback_user(sambaobj=self.samdb_loc,entry=user,result=data)
+ 
+            if self.callback_calculated_user != None:
+                data = self.callback_calculated_user(sambaobj=self.samdb_loc,entry=user,result=data)
                 SourceAnchor = data['SourceAnchor']
 
             if not SourceAnchor:
@@ -359,8 +359,8 @@ ms-DS-ConsistencyGuid:: %s
             if not data:
                 continue
 
-            if self.callback_user_hashnt != None:
-                hashnt = self.callback_user_hashnt(sambaobj=self.samdb_loc,entry=user,result=data,hashnt=hashnt)
+            if self.callback_calculated_hashnt != None:
+                hashnt = self.callback_calculated_hashnt(sambaobj=self.samdb_loc,entry=user,result=data,hashnt=hashnt)
 
             self.dict_id_hash[SourceAnchor]=hashnt
 
@@ -394,8 +394,8 @@ ms-DS-ConsistencyGuid:: %s
                             "usertype"                   : "Device"
                         }
 
-                if self.callback_device != None:
-                    data = self.callback_device(sambaobj=self.samdb_loc,entry=device,result=data)
+                if self.callback_calculated_device != None:
+                    data = self.callback_calculated_device(sambaobj=self.samdb_loc,entry=device,result=data)
                     SourceAnchor = data['SourceAnchor']
 
                 if not data:
@@ -430,8 +430,8 @@ ms-DS-ConsistencyGuid:: %s
                            "usertype"                   : "Group"
                        }
 
-            if self.callback_group != None:
-                data = self.callback_group(sambaobj=self.samdb_loc,entry=group,result=data)
+            if self.callback_calculated_group != None:
+                data = self.callback_calculated_group(sambaobj=self.samdb_loc,entry=group,result=data)
                 SourceAnchor = data['SourceAnchor']
 
             if not data:

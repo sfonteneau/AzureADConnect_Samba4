@@ -29,7 +29,10 @@ config.read(azureconf)
 
 if config.has_option('common', 'folder_callback_python') and config.get('common', 'folder_callback_python'):
     sys.path.append(config.get('common', 'folder_callback_python'))
-    from callbackaadsync import callback_user,callback_group,callback_device,callback_user_hashnt
+    from callbackaadsync import callback_calculated_user,callback_calculated_hashnt,callback_calculated_group,callback_calculated_device,callback_after_send_obj,callback_after_send_hashnt
+else:
+    callback_after_send_obj = None
+    callback_after_send_hashnt = None
 
 db = SqliteDatabase(config.get('common', 'dbpath'))
 
@@ -173,10 +176,10 @@ def run_sync(force=False,from_db=False):
             basedn_computer=basedn_computer
         )
     if config.has_option('common', 'folder_callback_python') and config.get('common', 'folder_callback_python'):
-        smb.callback_user = callback_user
-        smb.callback_user_hashnt = callback_user_hashnt
-        smb.callback_group = callback_group 
-        smb.callback_device = callback_device 
+        smb.callback_calculated_user   = callback_calculated_user
+        smb.callback_calculated_hashnt = callback_calculated_hashnt
+        smb.callback_calculated_group  = callback_calculated_group
+        smb.callback_calculated_device = callback_calculated_device
 
     smb.write_msDSConsistencyGuid_if_empty = config.getboolean('common', 'write_msDSConsistencyGuid_if_empty')
     smb.use_msDSConsistencyGuid_if_exist = config.getboolean('common', 'use_msDSConsistencyGuid_if_exist')
@@ -266,6 +269,8 @@ def run_sync(force=False,from_db=False):
                 dict_error[entry]=None
                 write_log_json_data('error',{'sourceanchor':entry,'action':'send_user','traceback':traceback.format_exc()})
                 continue 
+            if callback_after_send_obj != None :
+                callback_after_send_obj(sambaobj=smb.samdb_loc,az=azure.az,entry=entry,dry_run=dry_run)
             if not dry_run:
                 if not last_data:
                     AzureObject.insert(sourceanchor=entry,object_type='user',last_data_send =json.dumps(smb.dict_all_users_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
@@ -291,6 +296,8 @@ def run_sync(force=False,from_db=False):
                     dict_error[entry]=None
                     write_log_json_data('error',{'sourceanchor':entry,'action':'send_device','traceback':traceback.format_exc()})
                     continue
+                if callback_after_send_obj != None :
+                    callback_after_send_obj(sambaobj=smb.samdb_loc,az=azure.az,entry=entry,dry_run=dry_run)
                 if not dry_run:
                     if not last_data:
                         AzureObject.insert(sourceanchor=entry,object_type='device',last_data_send =json.dumps(smb.dict_all_device_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
@@ -316,6 +323,8 @@ def run_sync(force=False,from_db=False):
                 write_log_json_data('error',{'sourceanchor':entry,'action':'send_group','traceback':traceback.format_exc()})
                 continue
 
+            if callback_after_send_obj != None :
+                callback_after_send_obj(sambaobj=smb.samdb_loc,az=azure.az,entry=entry,dry_run=dry_run)
             if [g for g in smb.dict_all_group_samba[entry]['groupMembers'] if g in dict_error]:
                 continue
 
@@ -367,6 +376,8 @@ def run_sync(force=False,from_db=False):
                         write_log_json_data('error',{'sourceanchor':entry,'action':'send_hashnt','traceback':traceback.format_exc()})
                         continue
 
+                if callback_after_send_hashnt != None:
+                    callback_after_send_hashnt(sambaobj=smb.samdb_loc,az=azure.az,SourceAnchor=entry,hashnt=smb.dict_id_hash[entry],dry_run=dry_run)
                 if not dry_run:
                     AzureObject.update(last_sha256_hashnt_send = sha2password,last_send_hashnt_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 

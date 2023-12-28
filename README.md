@@ -172,7 +172,7 @@ Now edit /root/callbackaad/callbackaadsync.py (do not change the file name)
 Exemple: 
 
 ```
-def callback_user(sambaobj=None,entry=None,result=None):
+def callback_calculated_user(sambaobj=None,entry=None,result=None):
     result['company'] = "MY ENTERPRISE"
     return result
 ```
