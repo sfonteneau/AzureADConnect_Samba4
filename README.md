@@ -196,6 +196,8 @@ Exemple: Send an email, Enter something into a database, Perform additional acti
 
 In this case you can use: callback_after_send_obj and callback_after_send_hashnt
 
+A final callback is called at the end of the sync with callback_end_synchro
+
 
 compatibility
 ================
