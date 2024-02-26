@@ -1,5 +1,8 @@
 # Changelog
 
+## [2024-02-26]
+- The refresh token was never renewed, The problem should occur every 90 days. Also, now the refresh token is only used if the "expiresOn" date is reached.
+
 ## [2023-12-28]
 - renaming callbacks, add callback_after_send_obj ,callback_after_send_hashnt and callback_end_synchro
 
