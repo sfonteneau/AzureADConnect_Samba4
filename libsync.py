@@ -10,14 +10,8 @@ import logging
 from samba.auth import system_session
 from samba.credentials import Credentials
 from samba.samdb import SamDB
-from samba.netcmd.user import GetPasswordCommand
 from samba import param
 from AADInternals_python.AADInternals import AADInternals
-
-try:
-    from Cryptodome import Random
-except:
-    from Crypto import Random
 
 from samba.dsdb import UF_ACCOUNTDISABLE
 
@@ -169,8 +163,6 @@ class SambaInfo():
         creds.guess(lp)
 
         self.samdb_loc = SamDB(url=pathsamdb,session_info=system_session(),credentials=creds, lp=lp)
-        self.testpawd = GetPasswordCommand()
-        self.testpawd.lp = lp
 
         self.default_basedn = self.samdb_loc.get_default_basedn()
         self.basedn = [str(self.default_basedn)]
@@ -302,11 +294,9 @@ ms-DS-ConsistencyGuid:: %s
 
         for user in result_user:
 
-            Random.atfork()
-
             # Update if password different in dict mail pwdlastset
             passwordattr = 'unicodePwd'
-            password = self.testpawd.get_account_attributes(self.samdb_loc,None,self.default_basedn,filter="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr],decrypt=False)
+            password = samdb_loc.search(samdb.get_default_basedn(),expression="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr])[0]
             if not passwordattr in password:
                 continue
 
