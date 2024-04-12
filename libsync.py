@@ -296,7 +296,7 @@ ms-DS-ConsistencyGuid:: %s
 
             # Update if password different in dict mail pwdlastset
             passwordattr = 'unicodePwd'
-            password = samdb_loc.search(samdb.get_default_basedn(),expression="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr])[0]
+            password = self.samdb_loc.search(self.samdb_loc.get_default_basedn(),expression="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr])[0]
             if not passwordattr in password:
                 continue
 
