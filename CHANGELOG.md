@@ -1,5 +1,8 @@
 # Changelog
 
+## [2024-04-12]
+- Improving code  : repair a broken import in samba 4.20
+
 ## [2024-02-26]
 - The refresh token was never renewed, The problem should occur every 90 days. Also, now the refresh token is only used if the "expiresOn" date is reached.
 
