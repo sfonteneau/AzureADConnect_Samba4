@@ -1,5 +1,8 @@
 # Changelog
 
+## [2024-05-15]
+- FIX "expireOn" delta calculation, this would generate an expired token error. "expireOn" is not in UTC...
+
 ## [2024-04-12]
 - Improving code  : repair a broken import in samba 4.20
 
