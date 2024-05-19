@@ -198,6 +198,22 @@ In this case you can use: callback_after_send_obj and callback_after_send_hashnt
 
 A final callback is called at the end of the sync with callback_end_synchro
 
+Run the project on a member machine (non-domain controller)
+----------------------------------------------------------------------
+
+The machine must have samba installed. (Many samba libraries are required)
+
+Add in azure.conf add :
+
+```
+url=ldap://srvads.ad.lan:389
+user_ad=administrator
+password_ad=password
+```
+The specified account must have permission to replicate passwords.
+
+This operating mode also works with a Microsoft active directory.
+
 
 compatibility
 ================
