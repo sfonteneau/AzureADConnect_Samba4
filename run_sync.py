@@ -143,9 +143,17 @@ def run_sync(force=False,from_db=False):
     if config.has_option('common', 'custom_filter_computer'):
         custom_filter_computer = config.get('common', 'custom_filter_computer')
 
-    pathsamdb = '/var/lib/samba/private/sam.ldb'
-    if config.has_option('common', 'pathsamdb'):
-        pathsamdb = config.get('common', 'pathsamdb')
+    url = '/var/lib/samba/private/sam.ldb'
+    if config.has_option('common', 'url'):
+        url = config.get('common', 'url')
+
+    user = None
+    if config.has_option('common', 'user'):
+        user = config.get('common', 'user')
+
+    password = None
+    if config.has_option('common', 'password'):
+        password = config.get('common', 'password')
 
     pathsmbconf = "/etc/samba/smb.conf"
     if config.has_option('common', 'pathsmbconf'):
@@ -165,7 +173,7 @@ def run_sync(force=False,from_db=False):
 
 
     smb = SambaInfo(smbconf=pathsmbconf,
-            pathsamdb=pathsamdb,
+            url=url,
             SourceAnchorAttr=config.get('common', 'SourceAnchorAttr'),
             basedn=basedn,
             custom_filter_user=custom_filter_user,
@@ -174,7 +182,9 @@ def run_sync(force=False,from_db=False):
             alternate_login_id_attr=alternate_login_id_attr,
             basedn_user=basedn_user,
             basedn_group=basedn_group,
-            basedn_computer=basedn_computer
+            basedn_computer=basedn_computer,
+            user=user,
+            password=password
         )
     if config.has_option('common', 'folder_callback_python') and config.get('common', 'folder_callback_python'):
         smb.callback_calculated_user   = callback_calculated_user

@@ -14,6 +14,7 @@ from samba import param
 from AADInternals_python.AADInternals import AADInternals
 
 from samba.dsdb import UF_ACCOUNTDISABLE
+from AdAccountReader import AdAccountReader
 
 import optparse
 import samba.getopt as options
@@ -145,7 +146,7 @@ class AdConnect():
 
 class SambaInfo():
 
-    def __init__(self, smbconf="/etc/samba/smb.conf",pathsamdb='/var/lib/samba/private/sam.ldb',SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None,custom_filter_user='',custom_filter_group='',custom_filter_computer=''):
+    def __init__(self, smbconf="/etc/samba/smb.conf",url='/var/lib/samba/private/sam.ldb',SourceAnchorAttr="objectSid",basedn=None,alternate_login_id_attr=None,basedn_user=None,basedn_group=None,basedn_computer=None,custom_filter_user='',custom_filter_group='',custom_filter_computer='',user=None,password=None):
 
         self.callback_calculated_user   = None
         self.callback_calculated_hashnt = None
@@ -161,8 +162,16 @@ class SambaInfo():
 
         creds = Credentials()
         creds.guess(lp)
+        
+        self.user = None
+        if user or password:
+            creds.set_username(user)
+            self.user = user
+            creds.set_password(password)
 
-        self.samdb_loc = SamDB(url=pathsamdb,session_info=system_session(),credentials=creds, lp=lp)
+        self.samdb_loc = SamDB(url=url,session_info=system_session(),credentials=creds, lp=lp)
+        if user : 
+            self.account_reader = AdAccountReader(url.split('//')[1].split(':')[0], lp, creds,samdb=self.samdb_loc)
 
         self.default_basedn = self.samdb_loc.get_default_basedn()
         self.basedn = [str(self.default_basedn)]
@@ -295,12 +304,19 @@ ms-DS-ConsistencyGuid:: %s
         for user in result_user:
 
             # Update if password different in dict mail pwdlastset
-            passwordattr = 'unicodePwd'
-            password = self.samdb_loc.search(self.samdb_loc.get_default_basedn(),expression="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr])[0]
-            if not passwordattr in password:
-                continue
-
-            hashnt = password[passwordattr][0].hex().upper()
+            if self.user :
+                account_attributes = self.account_reader.get_account_attributes(user['distinguishedName'][0].decode('utf-8'), decrypted=True)
+                hashnt = self.account_reader.get_unicodePwd(account_attributes)
+                if not hashnt :
+                    hashnt = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+                else:
+                    hashnt = hashnt.hex().upper()
+            else:
+                passwordattr = 'unicodePwd'
+                password = self.samdb_loc.search(self.samdb_loc.get_default_basedn(),expression="(sAMAccountName=%s)" % str(user["sAMAccountName"]) ,scope=ldb.SCOPE_SUBTREE,attrs=[passwordattr])[0]
+                if not passwordattr in password:
+                    continue
+                hashnt = password[passwordattr][0].hex().upper()
 
             SourceAnchor = self.return_source_anchor(user)
 
