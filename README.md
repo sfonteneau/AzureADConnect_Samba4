@@ -144,11 +144,11 @@ calculate_deletions_based_on_last_sync=True
 Samba configuration
 ---------------------------------------------
 
-You can add pathsmbconf and pathsamdb parameters in the configuration file. 
+You can add pathsmbconf and url parameters in the configuration file. 
 If you are using a samba version of the distribution this should not be necessary.
 
 ```
-pathsamdb   = /usr/local/samba/private/sam.ldb
+url         = /usr/local/samba/private/sam.ldb
 pathsmbconf = /usr/local/samba/lib/smb.conf
 ```
 
