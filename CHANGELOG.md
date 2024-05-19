@@ -1,5 +1,9 @@
 # Changelog
 
+## [2024-05-19]
+- pathsamdb parameter was renamed to url
+- The script can now run on a member machine (non-domain controller) see: https://github.com/sfonteneau/AzureADConnect_Samba4/blob/main/README.md#run-the-project-on-a-member-machine-non-domain-controller
+
 ## [2024-05-15]
 - FIX "expireOn" delta calculation, this would generate an expired token error. "expireOn" is not in UTC...
 
