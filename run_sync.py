@@ -148,12 +148,12 @@ def run_sync(force=False,from_db=False):
         url = config.get('common', 'url')
 
     user = None
-    if config.has_option('common', 'user'):
-        user = config.get('common', 'user')
+    if config.has_option('common', 'user_ad'):
+        user = config.get('common', 'user_ad')
 
     password = None
-    if config.has_option('common', 'password'):
-        password = config.get('common', 'password')
+    if config.has_option('common', 'password_ad'):
+        password = config.get('common', 'password_ad')
 
     pathsmbconf = "/etc/samba/smb.conf"
     if config.has_option('common', 'pathsmbconf'):
