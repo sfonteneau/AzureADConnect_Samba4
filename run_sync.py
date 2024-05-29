@@ -100,6 +100,9 @@ def run_sync(force=False,from_db=False):
     if config.has_option('common', 'tenant_id'):
         azure.tenant_id = config.get('common', 'tenant_id')
 
+    if config.has_option('common', 'azureadname'):
+        azure.domain = config.get('common', 'azureadname')
+
     if config.has_option('common', 'mailadmin'):
         azure.mailadmin = config.get('common', 'mailadmin')    
 

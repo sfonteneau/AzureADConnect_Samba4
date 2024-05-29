@@ -35,6 +35,7 @@ class AdConnect():
         self.passwordadmin = None
         self.proxiesconf = None
 
+        self.domain= None
         self.tenant_id= None
         self.save_to_cache=True
         self.use_cache = True
@@ -57,7 +58,8 @@ class AdConnect():
                                    use_cache=self.use_cache,
                                    save_to_cache=self.save_to_cache,
                                    tenant_id=self.tenant_id,
-                                   cache_file=self.cache_file)
+                                   cache_file=self.cache_file,
+                                   domain=self.domain)
                                    
             self.tenant_id = self.az.tenant_id
             self.mailadmin = None
