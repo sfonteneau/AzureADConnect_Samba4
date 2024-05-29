@@ -1,5 +1,8 @@
 # Changelog
 
+## [2024-05-29]
+- tenant_id is no strictly necessary in the configuration file because an API point allows it to be retrieved. (for facilitate initial setup)
+
 ## [2024-05-19]
 - pathsamdb parameter was renamed to url
 - The script can now run on a member machine (non-domain controller) see: https://github.com/sfonteneau/AzureADConnect_Samba4/blob/main/README.md#run-the-project-on-a-member-machine-non-domain-controller
