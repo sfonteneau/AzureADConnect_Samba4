@@ -8,16 +8,11 @@ Install notes
 
 ```
 apt-get install git
-cd /tmp
-git clone https://github.com/sfonteneau/AzureADConnect_Samba4.git
-mv AzureADConnect_Samba4 /opt/sync-azure
-cd /opt/sync-azure/
-git submodule update --progress --init -- "AADInternals_python"
-cd /opt/sync-azure/AADInternals_python
-git submodule update --progress --init -- "python_wcfbin"
+git clone https://github.com/sfonteneau/AzureADConnect_Samba4.git /opt/sync-azure
+git -C /opt/sync-azure submodule update --progress --init -- "AADInternals_python"
+git -C /opt/sync-azure/AADInternals_python submodule update --progress --init -- "python_wcfbin"
 mkdir /etc/azureconf/
-cd /opt/sync-azure
-cp -f azure.conf.exemple /etc/azureconf/azure.conf
+cp -f /opt/sync-azure/azure.conf.exemple /etc/azureconf/azure.conf
 apt-get install python3-pycryptodome python3-peewee python3-passlib python3-xmltodict python3-requests python3-azure -y
 ```
 
