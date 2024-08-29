@@ -1,7 +1,7 @@
 # Changelog
 
 ## [2024-08-29]
-- Add attribut "mail" and "proxyaddress" sync for group 
+- Add attribut "mail" , "proxyaddress" and "description" sync for group 
 
 ## [2024-05-29]
 - tenant_id is no strictly necessary in the configuration file because an API point allows it to be retrieved. (for facilitate initial setup)
