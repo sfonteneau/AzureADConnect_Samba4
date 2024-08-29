@@ -438,6 +438,7 @@ ms-DS-ConsistencyGuid:: %s
                            "usertype"                   : "Group",
                            "mail"                       : group.get("mail",[b''])[0].decode('utf-8'),
                            "proxyAddresses"             : [p.decode('utf-8') for p in group.get("proxyAddresses",[])],
+                           "Description"                : group.get("description",[b''])[0].decode('utf-8'),
                        }
 
             if self.callback_calculated_group != None:
