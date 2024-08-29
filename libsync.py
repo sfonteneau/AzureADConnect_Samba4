@@ -435,7 +435,9 @@ ms-DS-ConsistencyGuid:: %s
                            "displayName"                : group.get("sAMAccountName",[b''])[0].decode('utf-8'),
                            "groupMembers"               : [str(m) for m in group.get('member',[])],
                            "SecurityEnabled"            : group.get("grouptype",[b''])[0].decode('utf-8') in ['-2147483644','-2147483640','-2147483646'],
-                           "usertype"                   : "Group"
+                           "usertype"                   : "Group",
+                           "mail"                       : group.get("mail",[b''])[0].decode('utf-8'),
+                           "proxyAddresses"             : [p.decode('utf-8') for p in group.get("proxyAddresses",[])],
                        }
 
             if self.callback_calculated_group != None:
