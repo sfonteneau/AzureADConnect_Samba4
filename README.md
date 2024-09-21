@@ -215,3 +215,19 @@ compatibility
 
 The first version of this project used the "objectsid" string as "sourceanchor", this mode now corresponds to an "objectSID_str" as sourceanchor in the ini file, this mode does not exist with azure ad microsoft, so it should no longer be used.
 
+Frequent problems and questions
+===================================
+
+If the script crashes with this message:
+
+```
+  File "/opt/sync-azure/AADInternals_python/AADInternals.py", line 596, in xml_to_result
+    raise Exception(dataxml["s:Envelope"]["s:Body"]['s:Fault']['s:Reason']['s:Text']['#text'])
+Exception: Access to Azure Active Directory has been denied. Contact Technical Support.
+
+```
+
+It appears that the user you authenticated with does not have the rights to perform the requested actions.
+
+You can change user by deleting the /root/last_token_azuread.json file and running the script again.
+
