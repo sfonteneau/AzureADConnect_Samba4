@@ -1,5 +1,8 @@
 # Changelog
 
+## [2024-10-31]
+- Remove password and mail for login
+
 ## [2024-08-29]
 - Add attribut "mail" , "proxyaddress" and "description" sync for group 
 
