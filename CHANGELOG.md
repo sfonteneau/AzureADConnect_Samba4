@@ -1,7 +1,7 @@
 # Changelog
 
 ## [2024-10-31]
-- Remove password and mail for login
+- Remove password and mail for login, lib : switch to adal to msal
 
 ## [2024-08-29]
 - Add attribut "mail" , "proxyaddress" and "description" sync for group 

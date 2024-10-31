@@ -13,7 +13,7 @@ git -C /opt/sync-azure submodule update --progress --init -- "AADInternals_pytho
 git -C /opt/sync-azure/AADInternals_python submodule update --progress --init -- "python_wcfbin"
 mkdir /etc/azureconf/
 cp -f /opt/sync-azure/azure.conf.exemple /etc/azureconf/azure.conf
-apt-get install python3-peewee python3-passlib python3-xmltodict python3-requests python3-adal -y
+apt-get install python3-peewee python3-passlib python3-xmltodict python3-requests python3-msal -y
 ```
 
 
