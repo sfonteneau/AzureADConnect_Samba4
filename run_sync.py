@@ -213,7 +213,7 @@ def run_sync(force=False,from_db=False):
         
         if from_db:
             for u in AzureObject.select(AzureObject.sourceanchor,AzureObject.last_data_send).where(AzureObject.object_type=='user'):
-                azure.dict_az_user[u.sourceanchor] = u.last_data_send
+                azure.dict_az_user[u.sourceanchor] = json.loads(u.last_data_send)
         else:
             azure.generate_all_dict()
 
@@ -233,7 +233,7 @@ def run_sync(force=False,from_db=False):
         # Delete group in azure and not found in samba
         if (not use_get_syncobjects) or from_db:
             for g in AzureObject.select(AzureObject.sourceanchor,AzureObject.last_data_send).where(AzureObject.object_type=='group'):
-                azure.dict_az_group[g.sourceanchor] = g.last_data_send
+                azure.dict_az_group[g.sourceanchor] = json.loads(g.last_data_send)
 
         for group in azure.dict_az_group:
             if not group in smb.dict_all_group_samba:
@@ -251,7 +251,7 @@ def run_sync(force=False,from_db=False):
 
             if (not use_get_syncobjects) or from_db:
                 for d in AzureObject.select(AzureObject.sourceanchor,AzureObject.last_data_send).where(AzureObject.object_type=='device'):
-                    azure.dict_az_devices[d.sourceanchor] = d.last_data_send
+                    azure.dict_az_devices[d.sourceanchor] = json.loasd(d.last_data_send)
 
             for device in azure.dict_az_devices:
                 if not device in smb.dict_all_device_samba:
