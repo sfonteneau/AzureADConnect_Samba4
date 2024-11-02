@@ -1,5 +1,8 @@
 # Changelog
 
+## [2024-11-02]
+- When do_delete is active, the calls graph.windows.net (deprecated) have been replaced by graph.microsoft.com
+
 ## [2024-10-31]
 - Remove password and mail for login, lib : switch to adal to msal
 - Replace DIY cache, by official cache in msal
