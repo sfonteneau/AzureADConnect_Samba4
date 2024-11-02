@@ -102,13 +102,30 @@ class AdConnect():
         if not self.use_get_syncobjects:
             return
 
-        for group in self.az.list_groups(select="onPremisesImmutableId,userPrincipalName,id"):
+        try:
+            list_groups = self.az.list_groups(select="onPremisesImmutableId,userPrincipalName,id")
+        except Exception as e:
+            if 'Identity synchronization is not yet activated for this company' in str(e):
+                list_groups = []
+            else:
+                raise
+
+        for group in list_groups:
             if not group.get('onPremisesImmutableId'):
                 continue
             self.dict_az_group[group["onPremisesImmutableId"]] = group
 
+
+        try:
+            list_devices = self.az.list_devices(select="onPremisesImmutableId,id")
+        except Exception as e:
+            if 'Identity synchronization is not yet activated for this company' in str(e):
+                list_devices = []
+            else:
+                raise
+
         if self.sync_device:
-            for device in self.az.list_devices(select="onPremisesImmutableId,id"):
+            for device in list_devices:
                 if not device.get('onPremisesImmutableId'):
                     continue
                 self.dict_az_devices[user["onPremisesImmutableId"]] = device
