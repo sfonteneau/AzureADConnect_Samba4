@@ -56,8 +56,9 @@ class AdConnect():
                                    tenant_id=self.tenant_id,
                                    cache_file=self.cache_file,
                                    domain=self.domain)
-                                   
+            self.az.get_token(scope="https://graph.windows.net/.default")
             self.tenant_id = self.az.tenant_id
+
 
     def enable_ad_sync(self):
         self.connect()
@@ -93,46 +94,24 @@ class AdConnect():
         self.dict_az_group = {}
         self.dict_az_devices = {}
 
-        for user in self.az.list_users():
-            if not user['dirSyncEnabled']:
+        for user in self.az.list_users(select="onPremisesImmutableId,userPrincipalName"):
+            if not user.get('onPremisesImmutableId'):
                 continue
-            if not user.get('immutableId'):
-                continue
-            self.dict_az_user[user["immutableId"]] = user
+            self.dict_az_user[user["onPremisesImmutableId"]] = user
 
         if not self.use_get_syncobjects:
             return
 
-        try:
-            list_groups = self.az.list_groups()
-        except Exception as e:
-            if 'Identity synchronization is not yet activated for this company' in str(e):
-                list_groups = []
-            else:
-                raise
-        for group in list_groups:
-            if not group['dirSyncEnabled']:
+        for group in self.az.list_groups(select="onPremisesImmutableId,userPrincipalName,id"):
+            if not group.get('onPremisesImmutableId'):
                 continue
-            if not group.get('immutable_id'):
-                continue
-            self.dict_az_group[group["immutable_id"]] = group
-
+            self.dict_az_group[group["onPremisesImmutableId"]] = group
 
         if self.sync_device:
-            try:
-                all_device = self.az.get_devices()
-            except Exception as e:
-                if 'Identity synchronization is not yet activated for this company' in str(e):
-                    all_device = []
-                else:
-                    raise
-                
-            for device in all_device:
-                if not device['dirSyncEnabled']:
+            for device in self.az.list_devices(select="onPremisesImmutableId,id"):
+                if not device.get('onPremisesImmutableId'):
                     continue
-                if not device.get('immutable_id'):
-                    continue
-                self.dict_az_devices[device["immutable_id"]] = device
+                self.dict_az_devices[user["onPremisesImmutableId"]] = device
 
     def send_hashnt(self,hashnt,sourceanchor):
         self.connect()

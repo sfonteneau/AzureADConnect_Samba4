@@ -30,6 +30,3 @@ dry_run=True
 ; db file, the last data sent is stored there.
 dbpath = /root/last_send_azuread.db
 
-;calculate deletions based on local last sync, does not list the users, groups and devices of the Azure AD to calculate the necessary deletion and will make the comparison with the last send of the script. 
-;It is best to leave this setting as True to avoid using deprecated API calls.
-calculate_deletions_based_on_last_sync=True
