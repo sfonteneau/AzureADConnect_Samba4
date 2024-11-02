@@ -56,7 +56,7 @@ class AdConnect():
                                    tenant_id=self.tenant_id,
                                    cache_file=self.cache_file,
                                    domain=self.domain)
-            self.az.get_token(scope=["https://graph.windows.net/.default"])
+            self.az.get_token(scopes=["https://graph.windows.net/.default"])
             self.tenant_id = self.az.tenant_id
 
 
