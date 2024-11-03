@@ -115,7 +115,7 @@ class AdConnect():
                 continue
             self.dict_az_group[group["onPremisesImmutableId"]] = group
 
-
+        return None
         try:
             list_devices = self.az.list_devices(select="onPremisesImmutableId,id")
         except Exception as e:
