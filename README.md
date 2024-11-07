@@ -218,6 +218,9 @@ The first version of this project used the "objectsid" string as "sourceanchor",
 Frequent problems and questions
 ===================================
 
+Access to Azure Active Directory has been denied
+---------------------------------------------------------------
+
 If the script crashes with this message:
 
 ```
@@ -231,3 +234,21 @@ It appears that the user you authenticated with does not have the rights to perf
 
 You can change user by deleting the /root/last_token_azuread.json file and running the script again.
 
+Log parsing
+---------------------------------------------
+
+The logs are stored in JSON format and, by default, they are stored here: /var/log/azure_ad_sync.
+
+You can, for example, parse them with jq:
+
+```
+cat /var/log/azure_ad_sync | jq 'select(.type == "send_nthash") |  .timestamp, .data.onPremisesSamAccountName '
+```
+
+```
+cat /var/log/azure_ad_sync | jq 'select(.data.onPremisesSamAccountName == "luke.skywalker") '
+```
+
+```
+cat /var/log/azure_ad_sync | jq 'select(.data.onPremisesSamAccountName == "luke.skywalker") |  .timestamp, .type '
+```
