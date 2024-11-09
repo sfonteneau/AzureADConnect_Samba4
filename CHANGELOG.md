@@ -1,5 +1,8 @@
 # Changelog
 
+## [2024-11-09]
+- Add params verify, Useful when you have a firewall that performs SSL inspection, you can mention the firewall certificate in configuration file.
+
 ## [2024-11-02]
 - When do_delete is active, the calls graph.windows.net (deprecated) have been replaced by graph.microsoft.com
 
