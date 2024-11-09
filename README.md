@@ -252,3 +252,25 @@ cat /var/log/azure_ad_sync | jq 'select(.data.onPremisesSamAccountName == "luke.
 ```
 cat /var/log/azure_ad_sync | jq 'select(.data.onPremisesSamAccountName == "luke.skywalker") |  .timestamp, .type '
 ```
+
+
+SSLError (SSLCertVerificationError)
+------------------------------------------------------------
+
+If the script crashes with this message:
+
+```
+SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:992)')
+```
+
+Certainly you have a firewall that performs SSL inspection.
+
+Add in azure.conf : 
+
+```
+verify=/root/ca.crt
+```
+
+/root/ca.crt is the firewall certificate
+
+
