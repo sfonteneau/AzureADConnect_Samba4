@@ -356,7 +356,7 @@ ms-DS-ConsistencyGuid:: %s
                     if not testmail in user:
                         continue
                     for v in user[testmail]:
-                        m = v.decode('utf-8').split(':')[-1].strip()
+                        m = v.decode('utf-8').lower().split(':')[-1].strip()
                         if not m :
                             continue
                         if not m in dict_mail_dn:
