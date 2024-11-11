@@ -274,3 +274,33 @@ verify=/root/ca.crt
 /root/ca.crt is the firewall certificate
 
 
+Duplicate Attribute resiliency 
+------------------------------------------------------------
+
+You can sometimes with this kind of message:
+
+```
+INFO:root:{"type": "warning_duplicate_mail_value", "timestamp": "2024-11-11 14:31:04.764566", "data": {"mail": "chewbacca@testoutlook.mail.onmicrosoft.com", "list_conflicting_objects": {"CN=chewie,CN=Users,DC=mydomain,DC=lan": ["proxyAddresses"], "CN=chewbacca,CN=Users,DC=mydomain,DC=lan": ["userPrincipalName"]}}}
+```
+
+or 
+
+```
+This object has been updated in your Azure Active Directory, but with some modified properties, because the following attributes are associated with another object [ProxyAddresses <pii>SMTP:chewie@testoutlook.mail.onmicrosoft.com</pii>;]. Please refer to https://aka.ms/duplicateattributeresiliency for steps on how to resolve this issue.
+```
+
+This means that two different accounts have the same email address.
+
+In Active directory : Either by the userPrincipalName attribute, by email or by the proxyAddresses attribute
+
+Sometimes the duplicate is in your active directory and you can identify duplicate objects with "warning_duplicate_mail_value" in logs.
+
+If the duplicate is not in your active directory this means that the duplicate is present in "entra id" with an account not synchronized with the active directory.
+
+When you have resolved the conflicts it may sometimes be necessary to force a synchronization with:
+
+```
+python3 /opt/sync-azure/run_sync.py --force
+```
+
+
