@@ -294,9 +294,8 @@ https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-i
 ### Case Azure Administrator Sync
 
 
-Synchronization does not work with an "entra id" administrator account (probably for security reasons)
-
-My advice for this type of case:
+Synchronization does not work with an "entra id" administrator account :
+see: https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-install-existing-tenant#admin-role-considerations
 
 * Remove administrator rights from the account in Azure.
 * Start synchronization
