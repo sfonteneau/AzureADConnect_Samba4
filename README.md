@@ -1,10 +1,8 @@
-Notes
-========================
+# Notes
 
 If you use this script and it works correctly - please do not be lazy to put a star. This motivates me very much to develop my product. If you lack some functions, write about it. I will try to add them if they fit into the product concept.
 
-Install notes
-==============
+# Install notes
 
 ```
 apt-get install git
@@ -35,8 +33,7 @@ python3 /opt/sync-azure/run_sync.py
 
 The script sends all users and groups a first time and then only sends what has been modified since the last send during the next launch.
 
-Warning
-========
+# Warning
 
 * Please note that this project uses Microsoft APIs not officially documented. Microsoft may break compatibility at any time
 
@@ -48,8 +45,7 @@ Warning
 
 [1] https://learn.microsoft.com/en-us/azure/active-directory/hybrid/connect/plan-connect-userprincipalname#alternate-login-id
 
-sourceanchor
-=============
+# sourceanchor
 
 The default sourceanchor in azure.conf.exemple is the objectGUID with msDSConsistencyGuid! read : https://learn.microsoft.com/en-us/azure/active-directory/hybrid/plan-connect-design-concepts#using-ms-ds-consistencyguid-as-sourceanchor
 
@@ -60,11 +56,9 @@ You can run the script on a previous installation but you have to pay attention 
 
 A dry_run mode allows you to run the script without making any changes
 
-advanced configuration
-========================
+# advanced configuration
 
-using specific basedn
------------------------------
+## using specific basedn
 
 You can specify a specific basedn for search in samba:
 
@@ -86,8 +80,7 @@ For precisely several bases dn, separate them with |
 basedn_user     = OU=USER,DC=MYDOMAIN,DC=LAN|OU=USER2,DC=MYDOMAIN,DC=LAN
 ```
 
-custom filter for search
------------------------------
+## custom filter for search
 
 You can specify a specific custom ldap filter for search in samba:
 
@@ -97,8 +90,7 @@ custom_filter_group    = (memberof:1.2.840.113556.1.4.1941:=CN=group_groups,OU=G
 custom_filter_computer = (memberof:1.2.840.113556.1.4.1941:=CN=group_computers,OU=Groupe,DC=mydomain,DC=lan)
 ```
 
-Do not use userPrincipalName as login
-----------------------------------------
+## Do not use userPrincipalName as login
 
 You can specify which attribute should be used as login. Please note this must be an email address. Use alternate_login_id_attr
 
@@ -107,8 +99,7 @@ You can specify which attribute should be used as login. Please note this must b
 alternate_login_id_attr = mail
 ```
 
-other settings
-----------------------------------------
+## other settings
 
 * credential_cache_file :
 
@@ -136,8 +127,7 @@ calculate deletions based on local last sync, does not list the users, groups an
 calculate_deletions_based_on_last_sync=True
 ```
 
-Samba configuration
----------------------------------------------
+## Samba configuration
 
 You can add pathsmbconf and url parameters in the configuration file. 
 If you are using a samba version of the distribution this should not be necessary.
@@ -147,8 +137,7 @@ url         = /usr/local/samba/private/sam.ldb
 pathsmbconf = /usr/local/samba/lib/smb.conf
 ```
 
-Use Python callback to modify the calculated result of the script
------------------------------------------------------------------------------
+## Use Python callback to modify the calculated result of the script
 
 Copy callback_template:
 
@@ -182,8 +171,7 @@ In this example we force the company entry "MY ENTERPRISE" on all user entries
 
 The function returns the result modify, if the function returns None, the user will be skipped from the sync
 
-Use Python callback to run code after sending
------------------------------------------------------------------------------
+## Use Python callback to run code after sending
 
 In certain cases we want to execute code in addition to sending it to Azure AD
 
@@ -193,8 +181,7 @@ In this case you can use: callback_after_send_obj and callback_after_send_hashnt
 
 A final callback is called at the end of the sync with callback_end_synchro
 
-Run the project on a member machine (non-domain controller)
-----------------------------------------------------------------------
+## Run the project on a member machine (non-domain controller)
 
 The machine must have samba installed. (Many samba libraries are required)
 
@@ -210,16 +197,14 @@ The specified account must have permission to replicate passwords.
 This operating mode also works with a Microsoft active directory.
 
 
-compatibility
-================
+# compatibility
+
 
 The first version of this project used the "objectsid" string as "sourceanchor", this mode now corresponds to an "objectSID_str" as sourceanchor in the ini file, this mode does not exist with azure ad microsoft, so it should no longer be used.
 
-Frequent problems and questions
-===================================
+# Frequent problems and questions
 
-Access to Azure Active Directory has been denied
----------------------------------------------------------------
+## Access to Azure Active Directory has been denied
 
 If the script crashes with this message:
 
@@ -234,8 +219,7 @@ It appears that the user you authenticated with does not have the rights to perf
 
 You can change user by deleting the /root/last_token_azuread.json file and running the script again.
 
-Log parsing
----------------------------------------------
+## Log parsing
 
 The logs are stored in JSON format and, by default, they are stored here: /var/log/azure_ad_sync.
 
@@ -254,8 +238,7 @@ cat /var/log/azure_ad_sync | jq 'select(.data.onPremisesSamAccountName == "luke.
 ```
 
 
-SSLError (SSLCertVerificationError)
-------------------------------------------------------------
+## SSLError (SSLCertVerificationError)
 
 If the script crashes with this message:
 
@@ -274,8 +257,7 @@ verify=/root/ca.crt
 /root/ca.crt is the firewall certificate
 
 
-Duplicate Attribute resiliency 
-------------------------------------------------------------
+## Duplicate Attribute resiliency 
 
 You can sometimes with this kind of message:
 
@@ -303,8 +285,14 @@ When you have resolved the conflicts it may sometimes be necessary to force a sy
 python3 /opt/sync-azure/run_sync.py --force
 ```
 
-Azure Administrator Sync
------------------------------------------------
+## When you have an existing tenant
+
+The explanation here applies to this project :
+
+https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-install-existing-tenant
+
+### Case Azure Administrator Sync
+
 
 Synchronization does not work with an "entra id" administrator account (probably for security reasons)
 
