@@ -303,4 +303,16 @@ When you have resolved the conflicts it may sometimes be necessary to force a sy
 python3 /opt/sync-azure/run_sync.py --force
 ```
 
+Azure Administrator Sync
+-----------------------------------------------
+
+Synchronization does not work with an "entra id" administrator account (probably for security reasons)
+
+My advice for this type of case:
+
+* Remove administrator rights from the account in Azure.
+* Start synchronization
+* The account should now go to “local sync enabled”
+* You can now restore the rights previously removed
+* The account is now recognized as a synchronized local account, synchronization works again.
 
