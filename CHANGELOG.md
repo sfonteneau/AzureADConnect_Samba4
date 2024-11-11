@@ -1,5 +1,8 @@
 # Changelog
 
+## [2024-11-11]
+- Added an email duplication detection feature in the userprincipalname and proxyaddresses mail fields.
+
 ## [2024-11-09]
 - Add params verify, Useful when you have a firewall that performs SSL inspection, you can mention the firewall certificate in configuration file.
 

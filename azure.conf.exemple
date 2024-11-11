@@ -30,3 +30,6 @@ dry_run=True
 ; db file, the last data sent is stored there.
 dbpath = /root/last_send_azuread.db
 
+;The script includes error detection in the event of duplicate mail on two different objects.
+warning_duplicate_mail_value=True
+

@@ -146,6 +146,7 @@ class SambaInfo():
         self.callback_calculated_hashnt = None
         self.callback_calculated_group  = None
         self.callback_calculated_device = None
+        self.warning_duplicate_mail_value = True
 
         # SAMDB
         lp = param.LoadParm()
@@ -295,6 +296,7 @@ ms-DS-ConsistencyGuid:: %s
         for bdn_user in self.basedn_user:
                 result_user.extend(self.samdb_loc.search(base=bdn_user, expression=r"(&(objectClass=user)(!(objectClass=computer))%s)" % self.custom_filter_user))
 
+        dict_mail_dn={}
         for user in result_user:
 
             # Update if password different in dict mail pwdlastset
@@ -313,7 +315,7 @@ ms-DS-ConsistencyGuid:: %s
                 hashnt = password[passwordattr][0].hex().upper()
 
             SourceAnchor = self.return_source_anchor(user)
-
+            dn = user['distinguishedName'][0].decode('utf-8')
 
             if int(user["userAccountControl"][0]) & UF_ACCOUNTDISABLE:
                 enabled = False
@@ -348,7 +350,21 @@ ms-DS-ConsistencyGuid:: %s
                        "proxyAddresses"             : [p.decode('utf-8') for p in user.get("proxyAddresses",[])],
                        "usertype"                   : "User"
                    }
- 
+
+            if self.warning_duplicate_mail_value:
+                for testmail in [self.alternate_login_id_attr,'mail','proxyAddresses']:
+                    if not testmail in user:
+                        continue
+                    for v in user[testmail]:
+                        m = v.decode('utf-8').split(':')[-1].strip()
+                        if not m :
+                            continue
+                        if not m in dict_mail_dn:
+                            dict_mail_dn[m] = {dn:[]}
+                        if not dn in dict_mail_dn[m]:
+                            dict_mail_dn[m][dn] = []
+                        dict_mail_dn[m][dn].append(testmail)
+     
             if self.callback_calculated_user != None:
                 data = self.callback_calculated_user(sambaobj=self.samdb_loc,entry=user,result=data)
                 SourceAnchor = data['SourceAnchor']
@@ -367,6 +383,9 @@ ms-DS-ConsistencyGuid:: %s
             self.all_dn[str(user["dn"])]=SourceAnchor
             self.dict_all_users_samba[SourceAnchor] = data
 
+        for t in dict_mail_dn:
+            if len(dict_mail_dn[t]) > 1:
+                write_log_json_data('warning_duplicate_mail_value',{'mail':t,'list_conflicting_objects':dict_mail_dn[t]})
 
         if self.add_device:
             self.dict_all_device_samba={}

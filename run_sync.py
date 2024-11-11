@@ -204,6 +204,9 @@ def run_sync(force=False,from_db=False):
     smb.dry_run = dry_run
     smb.add_device = sync_device
 
+    if config.has_option('common', 'warning_duplicate_mail_value'):
+        smb.warning_duplicate_mail_value = config.getboolean('common', 'warning_duplicate_mail_value')
+
     if not AzureObject.table_exists():
         db.create_tables([AzureObject])
 
