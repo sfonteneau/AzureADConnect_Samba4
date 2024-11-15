@@ -374,6 +374,7 @@ def run_sync(force=False,from_db=False):
 
     #send all_password
     if hash_synchronization:
+        already_wait = False
         for entry in smb.dict_id_hash :
             sha2password= hash_for_data(smb.dict_id_hash[entry])
             last_data =  AzureObject.select(AzureObject.last_sha256_hashnt_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='user').first()
@@ -386,7 +387,9 @@ def run_sync(force=False,from_db=False):
                 except Exception as e:
                     if "Result" in str(e):
                         print('Fail, we may be a little too fast for microsoft, we will wait and try again ...' )
-                        time.sleep(30)
+                        if not already_wait:
+                            time.sleep(30)
+                            already_wait = True
                         try:
                             azure.send_hashnt(smb.dict_id_hash[entry],entry)
                         except Exception as e:
