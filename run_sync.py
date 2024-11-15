@@ -359,9 +359,11 @@ def run_sync(force=False,from_db=False):
                 if g in list_group_create:
                     list_nested_group[entry] = None
 
+    already_wait = False
     if list_nested_group:
         print('New group with nested detected wait 30s')
         time.sleep(30)
+        already_wait = True
         for entry in list_nested_group:
             try:
                 azure.send_obj_to_az(smb.dict_all_group_samba[entry])
@@ -374,7 +376,6 @@ def run_sync(force=False,from_db=False):
 
     #send all_password
     if hash_synchronization:
-        already_wait = False
         for entry in smb.dict_id_hash :
             sha2password= hash_for_data(smb.dict_id_hash[entry])
             last_data =  AzureObject.select(AzureObject.last_sha256_hashnt_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='user').first()
