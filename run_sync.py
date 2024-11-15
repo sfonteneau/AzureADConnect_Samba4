@@ -389,8 +389,10 @@ def run_sync(force=False,from_db=False):
                         time.sleep(30)
                         try:
                             azure.send_hashnt(smb.dict_id_hash[entry],entry)
-                        except:
+                        except Exception as e:
                             write_log_json_data('error',{'sourceanchor':entry,'action':'send_hashnt','traceback':traceback.format_exc()})
+                            if "Result" in str(e):
+                                print('\n\nMaybe the user was manually deleted online? Run a force sync again to resend them... (use --force)\n\n')
                             continue
 
                     else:
