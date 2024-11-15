@@ -39,6 +39,13 @@ To force a send from all again, use --force (force sync) :
 python3 /opt/sync-azure/run_sync.py --force
 ```
 
+Once your first full sync has taken place, it's worth changing this setting to True to make the script run much faster. 
+This makes it possible to calculate deletions based on the last send and therefore no longer query Microsoft servers at each launch.
+
+```
+calculate_deletions_based_on_last_sync=True
+```
+
 # Warning
 
 * Please note that this project uses Microsoft APIs not officially documented. Microsoft may break compatibility at any time
