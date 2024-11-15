@@ -264,7 +264,7 @@ def run_sync(force=False,from_db=False):
 
             if (not use_get_syncobjects) or from_db:
                 for d in AzureObject.select(AzureObject.sourceanchor,AzureObject.last_data_send).where(AzureObject.object_type=='device'):
-                    azure.dict_az_devices[d.sourceanchor] = json.loasd(d.last_data_send)
+                    azure.dict_az_devices[d.sourceanchor] = json.loads(d.last_data_send)
 
             for device in azure.dict_az_devices:
                 if not device in smb.dict_all_device_samba:
