@@ -1,5 +1,8 @@
 # Changelog
 
+## [2024-11-15]
+- [FIX] Not delete user if onPremisesImmutableId but no onPremisesSyncEnabled
+
 ## [2024-11-11]
 - Added an email duplication detection feature in the userprincipalname and proxyaddresses mail fields.
 
