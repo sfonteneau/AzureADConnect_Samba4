@@ -33,7 +33,11 @@ python3 /opt/sync-azure/run_sync.py
 
 The script sends all users and groups a first time and then only sends what has been modified since the last send during the next launch. (delta)
 
-To force a send from all again, use --force (force sync)
+To force a send from all again, use --force (force sync) :
+
+```
+python3 /opt/sync-azure/run_sync.py --force
+```
 
 # Warning
 
