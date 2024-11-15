@@ -390,8 +390,8 @@ def run_sync(force=False,from_db=False):
                     azure.send_hashnt(smb.dict_id_hash[entry],entry)
                 except Exception as e:
                     if "Result" in str(e):
-                        print('Fail, we may be a little too fast for microsoft, we will wait and try again ...' )
                         if not already_wait:
+                            print('Fail, we may be a little too fast for microsoft, we will wait and try again ...' )
                             time.sleep(30)
                             already_wait = True
                         try:
