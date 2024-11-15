@@ -279,6 +279,7 @@ def run_sync(force=False,from_db=False):
 
     dict_error={}
 
+    send_user = False
     #create all user found samba
     for entry in smb.dict_all_users_samba:
         last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='user').first()
@@ -286,6 +287,7 @@ def run_sync(force=False,from_db=False):
             write_log_json_data('send',smb.dict_all_users_samba[entry])
             try:
                 azure.send_obj_to_az(smb.dict_all_users_samba[entry])
+                send_user = True
             except:
                 dict_error[entry]=None
                 write_log_json_data('error',{'sourceanchor':entry,'action':'send_user','traceback':traceback.format_exc()})
@@ -372,7 +374,8 @@ def run_sync(force=False,from_db=False):
                 continue
 
 
-
+    if not send_user:
+        already_wait = True
 
     #send all_password
     if hash_synchronization:
