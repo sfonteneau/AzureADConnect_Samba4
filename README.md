@@ -39,7 +39,7 @@ To force a send from all again, use --force (force sync) :
 python3 /opt/sync-azure/run_sync.py --force
 ```
 
-Once your first full sync has taken place, it's worth changing this setting to True to make the script run much faster. 
+&#x1F4A1; Once your first full sync has taken place, it's worth changing this setting to True to make the script run much faster. 
 This makes it possible to calculate deletions based on the last send and therefore no longer query Microsoft servers at each launch.
 
 ```
@@ -64,7 +64,7 @@ The default sourceanchor in azure.conf.exemple is the objectGUID with msDSConsis
 
 You can run the script on a previous installation but you have to pay attention to the previous configuration of your azure ad connect (sourceanchor)
 
-> **Warning**
+> **&#x26A0;&#xFE0F;Warning**
 > If "sourceanchor" changes, it will initiate object deletions and then object recreations. You must therefore choose your sourceanchor well and not change it
 
 A dry_run mode allows you to run the script without making any changes
