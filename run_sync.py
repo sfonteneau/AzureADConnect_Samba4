@@ -374,6 +374,7 @@ def run_sync(force=False,from_db=False):
         already_wait = True
         for entry in list_nested_group:
             try:
+                write_log_json_data('send',smb.dict_all_group_samba[entry])
                 azure.send_obj_to_az(smb.dict_all_group_samba[entry])
                 last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='group').first()
                 if not last_data:
