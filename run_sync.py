@@ -358,7 +358,7 @@ def run_sync(force=False,from_db=False):
                 if g in list_group_create:
                     list_nested_group[entry] = None
 
-            if entry in list_nested_group
+            if entry in list_nested_group:
                 continue
 
             if not dry_run:
