@@ -351,24 +351,35 @@ def run_sync(force=False,from_db=False):
             if [g for g in smb.dict_all_group_samba[entry]['groupMembers'] if g in dict_error]:
                 continue
 
+            if dry_run:
+                continue
+
+            for g in smb.dict_all_group_samba[entry]["groupMembers"]:
+                if g in list_group_create:
+                    list_nested_group[entry] = None
+
+            if entry in list_nested_group
+                continue
+
             if not dry_run:
                 if not last_data:
                     AzureObject.insert(sourceanchor=entry,object_type='group',last_data_send =json.dumps(smb.dict_all_group_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
                 else:
                     AzureObject.update(last_data_send =json.dumps(smb.dict_all_group_samba[entry]),last_data_send_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
 
-            for g in smb.dict_all_group_samba[entry]["groupMembers"]:
-                if g in list_group_create:
-                    list_nested_group[entry] = None
-
     already_wait = False
     if list_nested_group:
-        print('New group with nested detected wait 30s')
+        print('New group with nested detected wait 30s for send again')
         time.sleep(30)
         already_wait = True
         for entry in list_nested_group:
             try:
                 azure.send_obj_to_az(smb.dict_all_group_samba[entry])
+                last_data =  AzureObject.select(AzureObject.last_data_send).where(AzureObject.sourceanchor==entry,AzureObject.object_type=='group').first()
+                if not last_data:
+                    AzureObject.insert(sourceanchor=entry,object_type='group',last_data_send =json.dumps(smb.dict_all_group_samba[entry]),last_data_send_date = datetime.datetime.now()).execute()
+                else:
+                    AzureObject.update(last_data_send =json.dumps(smb.dict_all_group_samba[entry]),last_data_send_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
             except:
                 write_log_json_data('error',{'sourceanchor':entry,'action':'send_group','traceback':traceback.format_exc()})
                 continue
