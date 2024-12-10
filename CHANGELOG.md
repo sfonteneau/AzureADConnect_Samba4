@@ -1,5 +1,9 @@
 # Changelog
 
+## [2024-12-10]
+- Expired user accounts are now automatically marked as disabled.
+  This does not synchronize the attribute value but when the expiration date is reached the user will be disabled when starting the synchronization.
+
 ## [2024-11-15]
 - [FIX] Not delete user if onPremisesImmutableId but no onPremisesSyncEnabled
 

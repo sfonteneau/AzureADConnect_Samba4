@@ -323,6 +323,15 @@ ms-DS-ConsistencyGuid:: %s
                 enabled = False
             else:
                 enabled = True
+
+            if enabled :
+                accountexpire = int(user['accountExpires'][0].decode('utf-8'))
+                if not accountexpire in (0,9223372036854775807):
+                    epoch_start = datetime.datetime(1601, 1, 1)
+                    expiration_date = epoch_start + datetime.timedelta(microseconds=accountexpire // 10)
+                    if expiration_date < datetime.datetime.utcnow():
+                        enabled = False
+
             data = {
                        "SourceAnchor"               : SourceAnchor,
                        "accountEnabled"             : enabled,
