@@ -1,5 +1,8 @@
 # Changelog
 
+## [2025-01-06]
+-  manager attribute support
+
 ## [2024-12-10]
 - Expired user accounts are now automatically marked as disabled.
   This does not synchronize the attribute value but when the expiration date is reached the user will be disabled when starting the synchronization.
