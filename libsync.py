@@ -339,6 +339,7 @@ ms-DS-ConsistencyGuid:: %s
                        "onPremisesSamAccountName"   : user.get("sAMAccountName",[b''])[0].decode('utf-8'),
                        "onPremisesDistinguishedName": str(user["dn"]),
                        "dnsDomainName"              : self.domaine,
+                       "manager"                    : self.return_source_anchor(self.samdb_loc.search(self.samdb_loc.get_default_basedn(),expression="(distinguishedName=%s)" % user.get("manager")[0].decode('utf-8'),attrs=[self.SourceAnchorAttr,'objectSID','distinguishedName','ms-DS-ConsistencyGuid'])[0]) if user.get("manager") else ''  ,
                        "displayName"                : user.get("displayName",[b''])[0].decode('utf-8'),
                        "onPremiseSecurityIdentifier": base64.b64encode(user["objectSid"][0]).decode('utf-8'),
                        "userCertificate"            : [base64.b64encode(c).decode('utf-8') for c in user.get("userCertificate",[])],
