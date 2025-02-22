@@ -7,8 +7,7 @@ If you use this script and it works correctly - please do not be lazy to put a s
 ```
 apt-get install git
 git clone https://github.com/sfonteneau/AzureADConnect_Samba4.git /opt/sync-azure
-git -C /opt/sync-azure submodule update --progress --init -- "AADInternals_python"
-git -C /opt/sync-azure/AADInternals_python submodule update --progress --init -- "python_wcfbin"
+git -C /opt/sync-azure submodule update --init --recursive
 mkdir /etc/azureconf/
 cp -f /opt/sync-azure/azure.conf.exemple /etc/azureconf/azure.conf
 apt-get install python3-peewee python3-passlib python3-xmltodict python3-requests python3-msal -y
