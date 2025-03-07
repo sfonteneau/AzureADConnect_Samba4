@@ -13,7 +13,7 @@ from peewee import SqliteDatabase,CharField,Model,TextField,DateTimeField
 if "__file__" in locals():
     sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
-from libsync import AdConnect,SambaInfo,write_log_json_data,logger,logging
+from libsync import AdConnect,SambaInfo,write_log_json_data,logger,logging,generate_password
 
 parser = argparse.ArgumentParser(description='Azure ad sync')
 parser.add_argument('--conf', dest='azureconf', default='/etc/azureconf/azure.conf',help='path to conf file')
@@ -115,6 +115,11 @@ def run_sync(force=False,from_db=False):
 
     if config.has_option('common', 'save_to_cache'):
         azure.save_to_cache = config.getboolean('common', 'save_to_cache')
+
+    if config.has_option('common', 'enable_single_sign_on'):
+        enable_single_sign_on = config.getboolean('common', 'enable_single_sign_on')
+    else:
+        enable_single_sign_on = False
 
     if config.has_option('common', 'use_cache'):
         azure.use_cache = config.getboolean('common', 'use_cache')  
@@ -219,6 +224,29 @@ def run_sync(force=False,from_db=False):
         if hash_synchronization :
             write_log_json_data('enable_password_hash_sync',{"PasswordHashSync":True})
             azure.enable_password_hash_sync()
+
+
+    if enable_single_sign_on:
+
+        azure_ad_sso_user_exist = smb.azure_ad_sso_user_exist()
+        azure_ad_sso_expire = False
+        if azure_ad_sso_user_exist :
+            azure_ad_sso_expire = smb.azure_ad_sso_user_expire()
+
+        if (not azure_ad_sso_user_exist) or azure_ad_sso_expire:
+            random_password = generate_password()
+
+            if not azure_ad_sso_user_exist:
+                write_log_json_data('enable_sso',{"enable_sso":True})
+                azure.set_desktop_sso_enabled()
+
+            write_log_json_data('set_password_sso',{"domain_name":smb.domaine})
+            azure.set_desktop_sso(domain_name=smb.domaine,password=random_password)
+
+            if not azure_ad_sso_user_exist:
+                smb.create_azureadssoacc()
+
+            smb.set_password_azureadssoacc(password=random_password)
 
     smb.generate_all_dict()
 

@@ -6,6 +6,8 @@ import ldb
 import base64
 import datetime
 import logging
+import random
+import string
 
 from samba.auth import system_session
 from samba.credentials import Credentials
@@ -25,6 +27,13 @@ logger = logging.getLogger()
 
 def write_log_json_data(action,data):
     logger.info(json.dumps({'type':action,'timestamp': str(datetime.datetime.utcnow()),'data':data}))
+
+def generate_password(length=127):
+    special_chars = "!#$%()*+,-./:;=?@[\\]^_{|}~"
+    password = [random.choice(string.ascii_lowercase), random.choice(string.ascii_uppercase), random.choice(string.digits), random.choice(special_chars)]
+    password += random.choices(string.ascii_letters + string.digits + special_chars, k=length - 4)
+    random.shuffle(password)
+    return ''.join(password)
 
 class AdConnect():
 
@@ -65,6 +74,16 @@ class AdConnect():
     def enable_ad_sync(self):
         self.connect()
         self.az.set_adsyncenabled(enabledirsync=True)
+
+    def set_desktop_sso_enabled(self):
+        self.connect()
+        if not self.dry_run:
+            self.az.set_desktop_sso_enabled(enable=True)
+
+    def set_desktop_sso(self, domain_name: str, password: str, computer_name: str = "AZUREADSSOACC", enable: bool = True):
+        self.connect()
+        if not self.dry_run:
+            self.az.set_desktop_sso( domain_name, password, computer_name, enable)
 
     def enable_password_hash_sync(self):
         self.connect()
@@ -227,6 +246,23 @@ class SambaInfo():
     def check_service_connection_point_existe(self):
         configurationdn =  str(self.samdb_loc.get_config_basedn())
         return  bool(self.samdb_loc.search(base=configurationdn,expression='(&(cn=62a0ff2e-97b9-4513-943f-0d221bd30080)(objectClass=serviceConnectionPoint))'))
+
+    def azure_ad_sso_user_expire(self):
+        for u in self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(),expression='(servicePrincipalName=HOST/autologon.microsoftazuread-sso.com)'):
+            pwd_last_set_timestamp = int(u['pwdLastSet'][0])
+            if pwd_last_set_timestamp == 0:
+                return True
+            pwd_last_set_date = datetime.datetime(1601, 1, 1) + datetime.timedelta(seconds=pwd_last_set_timestamp // 10**7)
+            return pwd_last_set_date < datetime.datetime.utcnow() - datetime.timedelta(days=30)
+
+    def azure_ad_sso_user_exist(self):
+        return bool(self.samdb_loc.search(base=self.samdb_loc.get_default_basedn(),expression='(servicePrincipalName=HOST/autologon.microsoftazuread-sso.com)'))
+
+    def create_azureadssoacc(self,computername='azureadssoacc'):
+        self.samdb_loc.newcomputer(computername,service_principal_name_list=["HOST/aadg.windows.net.nsatc.net","HOST/autologon.microsoftazuread-sso.com"])
+
+    def set_password_azureadssoacc(self,password=None,computername='azureadssoacc'):
+        self.samdb_loc.setpassword(search_filter='(samAccountName=%s$)' % computername,password=password,force_change_at_next_login=False)
 
     def write_service_connection_point(self,tenant_id,azureadname):
 

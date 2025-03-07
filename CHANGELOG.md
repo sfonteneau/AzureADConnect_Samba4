@@ -1,5 +1,10 @@
 # Changelog
 
+## [2025-03-08]
+- Add "Microsoft Entra seamless single sign-on" (https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-sso-quick-start)
+  For enable : add "enable_single_sign_on" params in conf file. Do not delete the machine account "azureadssoacc"
+  Not properly tested yet, feedback appreciated
+
 ## [2025-01-06]
 -  manager attribute support
 
