@@ -110,6 +110,8 @@ You can specify which attribute should be used as login. Please note this must b
 alternate_login_id_attr = mail
 ```
 
+Mode not recommended, it will cause problems with sso mode because the email is not a login in the kerberos sense.
+
 ## other settings
 
 * credential_cache_file :
