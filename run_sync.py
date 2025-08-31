@@ -265,7 +265,7 @@ def run_sync(force=False,from_db=False):
                     azure.delete_user(user)
                     write_log_json_data('delete',azure.dict_az_user[user])
                 except:
-                    write_log_json_data('error',{'sourceanchor':user,'action':'delete_user','traceback':traceback.format_exc(),'data':azure.dict_az_user[user]})
+                    write_log_json_data('error',{'sourceanchor':user,'action':'delete_user','traceback':traceback.format_exc(),'data_delete':azure.dict_az_user[user]})
                     continue
                 if not dry_run:
                     AzureObject.delete().where(AzureObject.sourceanchor==user,AzureObject.object_type=='user').execute()
@@ -282,7 +282,7 @@ def run_sync(force=False,from_db=False):
                     azure.delete_group(group)
                     write_log_json_data('delete',azure.dict_az_group[group])
                 except:
-                    write_log_json_data('error',{'sourceanchor':group,'action':'delete_group','traceback':traceback.format_exc(),'data':azure.dict_az_group[group]})
+                    write_log_json_data('error',{'sourceanchor':group,'action':'delete_group','traceback':traceback.format_exc(),'data_delete':azure.dict_az_group[group]})
                     continue
                 if not dry_run:
                     AzureObject.delete().where(AzureObject.sourceanchor==group,AzureObject.object_type=='group').execute()
@@ -300,7 +300,7 @@ def run_sync(force=False,from_db=False):
                         azure.delete_device(device)
                         write_log_json_data('delete',azure.dict_az_devices[device])
                     except:
-                        write_log_json_data('error',{'sourceanchor':device,'action':'delete_device','traceback':traceback.format_exc(),'data':azure.dict_az_devices[device]})
+                        write_log_json_data('error',{'sourceanchor':device,'action':'delete_device','traceback':traceback.format_exc(),'data_delete':azure.dict_az_devices[device]})
                         continue
                     if not dry_run:
                         AzureObject.delete().where(AzureObject.sourceanchor==device,AzureObject.object_type=='device').execute()
@@ -318,7 +318,7 @@ def run_sync(force=False,from_db=False):
                 send_user = True
             except:
                 dict_error[entry]=None
-                write_log_json_data('error',{'sourceanchor':entry,'action':'send_user','traceback':traceback.format_exc(),'data':smb.dict_all_users_samba[entry]})
+                write_log_json_data('error',{'sourceanchor':entry,'action':'send_user','traceback':traceback.format_exc(),'data_send':smb.dict_all_users_samba[entry]})
                 continue 
             if callback_after_send_obj != None :
                 callback_after_send_obj(sambaobj=smb.samdb_loc,az=azure.az,entry=entry,dry_run=dry_run,last_send=last_data.last_data_send if last_data else {})
@@ -345,7 +345,7 @@ def run_sync(force=False,from_db=False):
                     write_log_json_data('send',smb.dict_all_device_samba[entry])
                 except:
                     dict_error[entry]=None
-                    write_log_json_data('error',{'sourceanchor':entry,'action':'send_device','traceback':traceback.format_exc(),'data':smb.dict_all_device_samba[entry]})
+                    write_log_json_data('error',{'sourceanchor':entry,'action':'send_device','traceback':traceback.format_exc(),'data_send':smb.dict_all_device_samba[entry]})
                     continue
                 if callback_after_send_obj != None :
                     callback_after_send_obj(sambaobj=smb.samdb_loc,az=azure.az,entry=entry,dry_run=dry_run,last_send=last_data.last_data_send if last_data else {})
@@ -371,7 +371,7 @@ def run_sync(force=False,from_db=False):
                 write_log_json_data('send',smb.dict_all_group_samba[entry])
             except:
                 dict_error[entry]=None
-                write_log_json_data('error',{'sourceanchor':entry,'action':'send_group','traceback':traceback.format_exc(),'data':smb.dict_all_group_samba[entry]})
+                write_log_json_data('error',{'sourceanchor':entry,'action':'send_group','traceback':traceback.format_exc(),'data_send':smb.dict_all_group_samba[entry]})
                 continue
 
             if callback_after_send_obj != None :
@@ -410,7 +410,7 @@ def run_sync(force=False,from_db=False):
                 else:
                     AzureObject.update(last_data_send =json.dumps(smb.dict_all_group_samba[entry]),last_data_send_date = datetime.datetime.now()).where(AzureObject.sourceanchor==entry).execute()
             except:
-                write_log_json_data('error',{'sourceanchor':entry,'action':'send_group','traceback':traceback.format_exc(),'data':smb.dict_all_group_samba[entry]})
+                write_log_json_data('error',{'sourceanchor':entry,'action':'send_group','traceback':traceback.format_exc(),'data_send':smb.dict_all_group_samba[entry]})
                 continue
 
 
@@ -437,13 +437,13 @@ def run_sync(force=False,from_db=False):
                             azure.send_hashnt(smb.dict_id_hash[entry],entry)
                             write_log_json_data('send_nthash',{'SourceAnchor':entry,'onPremisesSamAccountName':smb.dict_all_users_samba[entry]['onPremisesSamAccountName'],'nthash':'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'})
                         except Exception as e:
-                            write_log_json_data('error',{'sourceanchor':entry,'action':'send_hashnt','traceback':traceback.format_exc(),'data':{'SourceAnchor':entry,'onPremisesSamAccountName':smb.dict_all_users_samba[entry]['onPremisesSamAccountName'],'nthash':'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'}})
+                            write_log_json_data('error',{'sourceanchor':entry,'action':'send_hashnt','traceback':traceback.format_exc(),'data_send_hashnt':{'SourceAnchor':entry,'onPremisesSamAccountName':smb.dict_all_users_samba[entry]['onPremisesSamAccountName'],'nthash':'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'}})
                             if "Result" in str(e):
                                 print('\n\nMaybe the user was manually deleted online? Run a force sync again to resend them... (use --force)\n\n')
                             continue
 
                     else:
-                        write_log_json_data('error',{'sourceanchor':entry,'action':'send_hashnt','traceback':traceback.format_exc(),'data':{'SourceAnchor':entry,'onPremisesSamAccountName':smb.dict_all_users_samba[entry]['onPremisesSamAccountName'],'nthash':'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'}})
+                        write_log_json_data('error',{'sourceanchor':entry,'action':'send_hashnt','traceback':traceback.format_exc(),'data_send_hashnt':{'SourceAnchor':entry,'onPremisesSamAccountName':smb.dict_all_users_samba[entry]['onPremisesSamAccountName'],'nthash':'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'}})
                         continue
 
                 if callback_after_send_hashnt != None:
