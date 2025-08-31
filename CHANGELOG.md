@@ -1,5 +1,8 @@
 # Changelog
 
+## [2025-08-31]
+- Fix : Only log after successful action, add "data" in error log.
+
 ## [2025-03-23]
 - Fix : https://github.com/sfonteneau/AADInternals_python/issues/12
 - Fix maybe : https://github.com/sfonteneau/AADInternals_python/issues/11
