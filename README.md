@@ -2,6 +2,12 @@
 
 If you use this script and it works correctly - please do not be lazy to put a star. This motivates me very much to develop my product. If you lack some functions, write about it. I will try to add them if they fit into the product concept.
 
+> [!IMPORTANT]
+> Microsoft has announced the migration from Entra Connect Sync to Entra Cloud Sync:
+> https://learn.microsoft.com/en-us/entra/fundamentals/whats-new#upcoming-change---migrate-from-microsoft-entra-connect-sync-to-microsoft-entra-cloud-sync
+>
+> I have no contact at Microsoft and no visibility into the future of the undocumented APIs used by this project. If you have contacts at Microsoft or relevant information, please get in touch.
+
 # Install notes
 
 ```
